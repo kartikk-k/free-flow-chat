@@ -1,19 +1,25 @@
 import { Handle, NodeProps, Position } from '@xyflow/react';
+import { useState } from 'react';
 
-function CNode(props: NodeProps) {
+function ChatNode(props: NodeProps) {
 
-    // const onChange = useCallback((evt: React.ChangeEvent<HTMLInputElement>) => {
-    //     console.log(evt.target.value);
-    // }, []);
+    const [submitted, setSubmitted] = useState(false);
+    const [question, setQuestion] = useState('');
 
     return (
         <div className='flex group'>
-            <div className='p-4 bg-white rounded-3xl min-w-2xl max-w-2xl relative outline-2 outline-black/15 hover:shadow-2xl duration-150'>
+            <div className='p-4 bg-white rounded-3xl min-w-2xl max-w-2xl relative outline-2 outline-black/15 hover:shadow-2xl duration-150 cursor-default'>
+
+                {/* selected context */}
+                <div className='bg-neutral-200/50 px-4 py-3 rounded-[14px] mb-4 relative left-[-8px] top-[-8px] w-[calc(100%+16px)] flex items-center gap-2 text-sm' >
+                    <svg xmlns="http://www.w3.org/2000/svg" className='opacity-50' width="18" height="18" viewBox="0 0 18 18"><title>merge</title><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" stroke="currentColor"><path d="M9.5,9l-2.172-3.752c-.358-.618-1.017-.998-1.731-.998H2.75"></path><path d="M9.5,9l-2.172,3.752c-.358,.618-1.017,.998-1.731,.998H2.75"></path><line x1="16.25" y1="9" x2="9.5" y2="9"></line><polyline points="13.5 6.25 16.25 9 13.5 11.75"></polyline></g></svg>
+                    <p>EC2 Instance (Simplest Self-Hosting)</p>
+                </div>
 
                 <div className='flex flex-col gap-1'>
 
                     <div className='flex items-center gap-2'>
-                        <button className='drag-handle__cNode hover:bg-neutral-200 w-6 h-8 flex items-center justify-center rounded-md'>
+                        <button className='drag-handle__ChatNode hover:bg-neutral-200 w-6 h-8 flex items-center justify-center rounded-md active:cursor-grabbing hover:cursor-grab'>
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><title>grip-dots-vertical</title><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" stroke="currentColor"><circle cx="6.75" cy="9" r=".5" fill="currentColor"></circle><circle cx="6.75" cy="3.75" r=".5" fill="currentColor"></circle><circle cx="6.75" cy="14.25" r=".5" fill="currentColor"></circle><circle cx="11.25" cy="9" r=".5" fill="currentColor"></circle><circle cx="11.25" cy="3.75" r=".5" fill="currentColor"></circle><circle cx="11.25" cy="14.25" r=".5" fill="currentColor"></circle></g></svg>
                         </button>
 
@@ -29,23 +35,59 @@ function CNode(props: NodeProps) {
                         </button>
                     </div>
 
-                    <textarea
-                        id=""
-                        name=""
-                        className='resize-none bg- neutral-100 ml-5 p-3 focus:outline-none'
-                        placeholder='Enter your prompt here...'
-                        rows={5}
-                    >
-                    </textarea>
+                    {!submitted ? (
+                        <textarea
+                            id=""
+                            name=""
+                            className='resize-none bg- neutral-100 ml-5 p-3 focus:outline-none'
+                            placeholder='Enter your prompt here...'
+                            rows={5}
+                            onKeyDown={e => e.key === 'Enter' && setSubmitted(true)}
+                            onChange={e => setQuestion(e.target.value)}
+                        >
+                        </textarea>
+                    ) : (
 
+                        <div className='ml-5 p-3 flex flex-col gap-7 select-text'>
+                            {/* question */}
+                            <p className='font-medium cursor-text'>
+                                {question}
+                            </p>
+
+                            {/* response */}
+                            <div className='text-foreground/70 font-medium space-y-3 relative cursor-text'>
+                                {/* <div className='absolute -left-7 top-0.5 opacity-50'>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><title>msg-content</title><g fill="currentColor"><path d="M9,1C4.589,1,1,4.589,1,9c0,1.396,.371,2.776,1.062,3.971,.238,.446-.095,2.002-.842,2.749-.209,.209-.276,.522-.17,.798,.106,.276,.365,.465,.66,.481,.079,.004,.16,.006,.241,.006,1.145,0,2.535-.407,3.44-.871,.675,.343,1.39,.587,2.131,.728,.484,.092,.982,.138,1.478,.138,4.411,0,8-3.589,8-8S13.411,1,9,1Zm1.25,10.5H5.75c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75h4.5c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75Zm2-3.5H5.75c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75h6.5c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75Z"></path></g></svg>
+                        </div> */}
+
+                                <p>I'll help you create a minimal Vercel-like deployment platform using AWS services. Here's a comprehensive plan with the core components needed:</p>
+
+                                <p className='text-2xl mt-5'>Core Architecture Components</p>
+                                <p>I'll help you create a minimal Vercel-like deployment platform using AWS services. Here's a comprehensive plan with the core components needed:</p>
+                                <ul className='list-disc list-inside ml-2'>
+                                    <li>AWS Amplify</li>
+                                    <li>AWS CloudFront</li>
+                                    <li>AWS Lambda</li>
+                                    <li>AWS API Gateway</li>
+                                    <li>AWS DynamoDB</li>
+                                    <li>AWS S3</li>
+                                    <li>AWS CloudWatch</li>
+                                    <li>AWS CloudWatch Logs</li>
+                                </ul>
+
+                                <p>I'll help you create a minimal Vercel-like deployment platform using AWS services. Here's a comprehensive plan with the core components needed:</p>
+
+                            </div>
+                        </div>
+
+                    )}
                 </div>
 
-
                 <>
-                    <Handle type="source" position={Position.Top} id={'a1'} />
-                    <Handle type="target" position={Position.Bottom} id={'a2'} />
+                    <Handle type="target" position={Position.Top} id={'a1'} />
+                    <Handle type="target" position={Position.Left} id={'a2'} />
                     <Handle type="source" position={Position.Right} id={'a3'} />
-                    <Handle type="target" position={Position.Left} id={'a4'} />
+                    <Handle type="source" position={Position.Bottom} id={'a4'} />
                 </>
             </div>
 
@@ -58,4 +100,4 @@ function CNode(props: NodeProps) {
     )
 }
 
-export default CNode
+export default ChatNode
