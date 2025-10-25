@@ -1,65 +1,64 @@
-import Image from "next/image";
+"use client"
 
-export default function Home() {
+import CNode from '@/components/CNode';
+import ENode from '@/components/ENode';
+import RNode from '@/components/RNode';
+import { addEdge, applyEdgeChanges, applyNodeChanges, Background, BackgroundVariant, Connection, Controls, Edge, EdgeChange, Node, NodeChange, ReactFlow } from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+import { useCallback, useState } from 'react';
+
+
+const nodeTypes = {
+  customNode: CNode,
+  rNode: RNode,
+  eNode: ENode,
+};
+
+const initialNodes = [
+  { id: 'n3', position: { x: 0, y: 200 }, data: { label: 'Node 3' }, type: 'customNode', dragHandle: '.drag-handle__cNode' },
+  { id: 'n5', position: { x: 100, y: 600 }, data: { label: 'Node 5' }, type: 'rNode', dragHandle: '.drag-handle__rNode' },
+  { id: 'n6', position: { x: 900, y: 400 }, data: { label: 'Node 6' }, type: 'eNode', dragHandle: '.drag-handle__eNode' },
+  { id: 'n8', position: { x: 1400, y: 600 }, data: { label: 'Node 7' }, type: 'eNode', dragHandle: '.drag-handle__eNode' },
+];
+
+const initialEdges = [{ id: 'n3-n4', source: 'n3', target: 'n4' }];
+
+export default function App() {
+  const [nodes, setNodes] = useState<Node[]>(initialNodes);
+  const [edges, setEdges] = useState<Edge[]>(initialEdges);
+
+  const onNodesChange = useCallback(
+    (changes: NodeChange[]) => setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
+    [],
+  );
+  const onEdgesChange = useCallback(
+    (changes: EdgeChange[]) => setEdges((edgesSnapshot) => applyEdgeChanges(changes, edgesSnapshot)),
+    [],
+  );
+
+  const onConnect = useCallback(
+    (params: Connection) => setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
+    [],
+  );
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div style={{ width: '100vw', height: '100vh' }}>
+      <ReactFlow
+        nodes={nodes}
+        nodeTypes={nodeTypes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        // onNodeClick={e => handleNodeClick("n8", 0, [])}
+        nodesDraggable={true}
+        panOnDrag={false}
+        panOnScroll={true}
+        fitView
+      >
+        <Background variant={BackgroundVariant.Dots} />
+        <Controls />
+      </ReactFlow>
     </div>
   );
 }
