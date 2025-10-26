@@ -1,12 +1,13 @@
+import { getHistoricalNodeIds } from '@/helpers/playground/get-historical-node-ids';
 import { addNewChatNode, attachMessageToNode, getNodeChat } from '@/store/helpers';
+import { usePlaygroundStore } from '@/store/Playground';
 import { useChat } from '@ai-sdk/react';
 import { Handle, NodeProps, Position } from '@xyflow/react';
 import { DefaultChatTransport } from 'ai';
 import { useEffect, useState } from 'react';
-import ChatSection from './chat/ChatSection';
 import { NodeChat } from '../../typings';
-import { usePlaygroundStore } from '@/store/Playground';
-import { getHistoricalNodeIds } from '@/helpers/playground/get-historical-node-ids';
+import ChatSection from './chat/ChatSection';
+
 
 function ChatNode(props: NodeProps) {
 
@@ -16,13 +17,15 @@ function ChatNode(props: NodeProps) {
 
     const { selectedNodeId, selectedNodeHistoricalNodeIds, nodeChats, connectors } = usePlaygroundStore();
 
-    const { messages, sendMessage, status, setMessages } = useChat({
+    const { messages, sendMessage, status, setMessages, error } = useChat({
         transport: new DefaultChatTransport({
             api: `/api/agent`,
         }),
         onFinish: () => {
         },
         onError: () => {
+            // setError(false)
+            setSubmitted(false)
         },
     });
 
@@ -37,6 +40,7 @@ function ChatNode(props: NodeProps) {
 
     const handleSendMessage = () => {
         setSubmitted(true);
+        // setError(false)
 
         // set historicals
         let messageHistory: any[] = [];
@@ -96,7 +100,7 @@ function ChatNode(props: NodeProps) {
     }
 
     const handleClick = () => {
-        
+
     }
 
     const handleAdd = () => {
@@ -145,6 +149,12 @@ function ChatNode(props: NodeProps) {
                         </button>
                     </div>
 
+                    {error && (
+                        <p className='ml-5 p-3 pb-0 text-rose-600'>
+                            Error generating response. Please try again!
+                        </p>
+                    )}
+
                     {!submitted ? (
                         <textarea
                             id=""
@@ -153,6 +163,7 @@ function ChatNode(props: NodeProps) {
                             placeholder='Enter your prompt here...'
                             rows={5}
                             onKeyDown={e => e.key === 'Enter' && handleSendMessage()}
+                            value={question}
                             onChange={e => setQuestion(e.target.value)}
                         >
                         </textarea>

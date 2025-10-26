@@ -1,5 +1,6 @@
 import { addNewChatNode } from '@/store/helpers';
 import { UIDataTypes, UIMessage, UITools } from 'ai';
+import { Response } from '../ai-elements/response';
 
 function ChatSection({ messages, status }: { messages: UIMessage<unknown, UIDataTypes, UITools>[], status: 'submitted' | 'streaming' | 'finished' | 'error' }) {
 
@@ -15,7 +16,7 @@ function ChatSection({ messages, status }: { messages: UIMessage<unknown, UIData
                 <div>
                     {msg.role !== 'user' && (
                         <>
-                            {msg.parts.map(part => (
+                            {msg.parts.map((part, index) => (
                                 <div className='space-y-4'>
                                     {part.type === 'reasoning' ? (
                                         <div className='text-xs mb-2'>
@@ -34,15 +35,16 @@ function ChatSection({ messages, status }: { messages: UIMessage<unknown, UIData
                                         </div>
                                     ) :
                                         part.type === 'text' && (
-                                            <div>
-                                                {part.text === '.\n' || part.text === '.\n\n' ? (
-                                                    <br />
-                                                ) : (
-                                                    <p>
-                                                        {part.text as string}
-                                                    </p>
-                                                )}
-                                            </div>
+                                            <Response isAnimating={status === 'streaming'} key={index}>{part.text}</Response>
+                                            // <div>
+                                            //     {part.text === '.\n' || part.text === '.\n\n' ? (
+                                            //         <br />
+                                            //     ) : (
+                                            //         <p>
+                                            //             {part.text as string}
+                                            //         </p>
+                                            //     )}
+                                            // </div>
                                         )}
                                 </div>
                             ))}
