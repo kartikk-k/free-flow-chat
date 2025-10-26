@@ -1,8 +1,9 @@
 "use client"
 
 import ChatNode from '@/components/ChatNode';
+import handleConnectionEnd from '@/helpers/playground/handle-connection-end';
 import { usePlaygroundStore } from '@/store/Playground';
-import { addEdge, applyEdgeChanges, applyNodeChanges, Background, BackgroundVariant, Connection, Controls, EdgeChange, NodeChange, ReactFlow } from '@xyflow/react';
+import { addEdge, applyEdgeChanges, applyNodeChanges, Background, BackgroundVariant, Connection, Controls, EdgeChange, NodeChange, ReactFlow, ReactFlowProvider, useReactFlow } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useCallback, useEffect } from 'react';
 
@@ -18,9 +19,10 @@ const nodeTypes = {
 };
 
 
-function Playground() {
+function PlaygroundContent() {
 
     const { nodes, setNodes, connectors, setConnectors } = usePlaygroundStore();
+    const { screenToFlowPosition } = useReactFlow();
 
     useEffect(() => {
         if (nodes.length) return;
@@ -41,6 +43,21 @@ function Playground() {
         [connectors, setConnectors],
     );
 
+    const onConnectEnd = useCallback(
+        (event: MouseEvent | TouchEvent, connectionState: any) => {
+            handleConnectionEnd({
+                event,
+                connectionState,
+                screenToFlowPosition,
+                nodes,
+                setNodes,
+                connectors,
+                setConnectors,
+            });
+        },
+        [nodes, setNodes, connectors, setConnectors, screenToFlowPosition]
+    )
+
     return (
         <div style={{ width: '100vw', height: '100vh' }}>
             <ReactFlow
@@ -49,6 +66,7 @@ function Playground() {
                 edges={connectors}
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
+                onConnectEnd={onConnectEnd}
                 onConnect={onConnect}
                 nodesDraggable={true}
                 panOnDrag={false}
@@ -59,6 +77,14 @@ function Playground() {
                 <Controls />
             </ReactFlow>
         </div>
+    );
+}
+
+function Playground() {
+    return (
+        <ReactFlowProvider>
+            <PlaygroundContent />
+        </ReactFlowProvider>
     );
 }
 
