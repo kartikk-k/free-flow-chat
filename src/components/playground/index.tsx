@@ -2,8 +2,9 @@
 
 import ChatNode from '@/components/ChatNode';
 import handleConnectionEnd from '@/helpers/playground/handle-connection-end';
+import { getHistoricalNodeIds } from '@/helpers/playground/get-historical-node-ids';
 import { usePlaygroundStore } from '@/store/Playground';
-import { addEdge, applyEdgeChanges, applyNodeChanges, Background, BackgroundVariant, Connection, Controls, EdgeChange, NodeChange, ReactFlow, ReactFlowProvider, useReactFlow } from '@xyflow/react';
+import { addEdge, applyEdgeChanges, applyNodeChanges, Background, BackgroundVariant, Connection, Controls, EdgeChange, NodeChange, ReactFlow, ReactFlowProvider, SelectionMode, useReactFlow, useStoreApi } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useCallback, useEffect } from 'react';
 
@@ -21,17 +22,43 @@ const nodeTypes = {
 
 function PlaygroundContent() {
 
-    const { nodes, setNodes, connectors, setConnectors } = usePlaygroundStore();
+    const { nodes, setNodes, connectors, setConnectors, setSelectedNodeId, selectedNodeId, setSelectedNodeHistoricalNodeIds, nodeChats } = usePlaygroundStore();
     const { screenToFlowPosition } = useReactFlow();
+    const store = useStoreApi();
 
     useEffect(() => {
         if (nodes.length) return;
         setNodes(initialNodes);
     }, [nodes, setNodes])
 
+    // update selected node when selection changes
+    useEffect(() => {
+        const unsubscribe = store.subscribe((state) => {
+            const selectedNodes = Array.from(state.nodeLookup.values()).filter((node: any) => node.selected);
+            if (selectedNodes.length === 1) {
+                setSelectedNodeId(selectedNodes[0].id);
+            } else {
+                setSelectedNodeId(null);
+            }
+        });
+
+        return () => unsubscribe();
+    }, [])
+
+    useEffect(() => {
+        if (!selectedNodeId) {
+            setSelectedNodeHistoricalNodeIds([]);
+        } else {
+            // Recursively find all source nodes connected to the selected node
+            const historicalNodeIds = getHistoricalNodeIds(selectedNodeId, connectors);
+            console.log('historicalNodeIds', historicalNodeIds);
+            setSelectedNodeHistoricalNodeIds(historicalNodeIds);
+        }
+    }, [selectedNodeId, connectors, setSelectedNodeHistoricalNodeIds])
+
     const onNodesChange = useCallback(
         (changes: NodeChange[]) => setNodes(applyNodeChanges(changes, nodes)),
-        [nodes, setNodes],
+        [nodes, setNodes, nodeChats],
     );
     const onEdgesChange = useCallback(
         (changes: EdgeChange[]) => setConnectors(applyEdgeChanges(changes, connectors)),
@@ -49,13 +76,15 @@ function PlaygroundContent() {
                 event,
                 connectionState,
                 screenToFlowPosition,
+                // @ts-ignore
+                store,
                 nodes,
                 setNodes,
                 connectors,
                 setConnectors,
             });
         },
-        [nodes, setNodes, connectors, setConnectors, screenToFlowPosition]
+        [nodes, setNodes, connectors, setConnectors, screenToFlowPosition, store]
     )
 
     return (
@@ -64,13 +93,19 @@ function PlaygroundContent() {
                 nodes={nodes}
                 nodeTypes={nodeTypes}
                 edges={connectors}
+
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 onConnectEnd={onConnectEnd}
                 onConnect={onConnect}
-                nodesDraggable={true}
+
                 panOnDrag={false}
                 panOnScroll={true}
+                nodesDraggable={true}
+
+                selectionOnDrag
+                selectionMode={SelectionMode.Partial}
+
                 fitView
             >
                 <Background variant={BackgroundVariant.Dots} />

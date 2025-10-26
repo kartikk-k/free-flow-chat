@@ -33,7 +33,8 @@ export default function addNewChatNode(nodeId?: string, source?: string) {
     if (nodeId && source?.trim()) {
         const newChat: NodeChat = {
             id: uuid(),
-            message: null,
+            createdAt: new Date().toISOString(),
+            messages: [],
             source: source,
             nodeId: id
         }

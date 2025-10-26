@@ -14,8 +14,9 @@ export async function POST(req: NextRequest) {
 
     const result = streamText({
         // model: anthropic('claude-sonnet-4-20250514'
-        model: openai('gpt-5'),
+        model: openai('o3-mini'),
         messages: convertToModelMessages(messages),
+        
 
         onError: (e => {
             console.log("❌❌❌❌ Error in agent: ", e)
