@@ -8,7 +8,7 @@ import { useCallback, useEffect } from 'react';
 
 const initialNodes = [
     { id: 'n1', position: { x: 0, y: 200 }, data: { label: 'Node 3' }, type: 'chatNode', dragHandle: '.drag-handle__ChatNode' },
-    { id: 'n2', position: { x: 200, y: 600 }, data: { label: 'Node 4' }, type: 'chatNode', dragHandle: '.drag-handle__ChatNode' },
+    // { id: 'n2', position: { x: 200, y: 600 }, data: { label: 'Node 4' }, type: 'chatNode', dragHandle: '.drag-handle__ChatNode' },
 ];
 // const initialEdges = [{ id: 'n3-n4', source: 'n3', target: 'n4' }];
 
