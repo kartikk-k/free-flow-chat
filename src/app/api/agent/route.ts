@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
 
     const result = streamText({
         // model: anthropic('claude-sonnet-4-20250514'
-        model: openai('o3-mini'),
+        model: openai('gpt-4'),
         messages: convertToModelMessages(messages),        
 
         onError: (e => {
