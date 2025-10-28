@@ -1,10 +1,11 @@
 "use client"
 
 import ChatNode from '@/components/ChatNode';
+import { ApiKeyDialog } from '@/components/ApiKeyDialog';
 import handleConnectionEnd from '@/helpers/playground/handle-connection-end';
 import { getHistoricalNodeIds } from '@/helpers/playground/get-historical-node-ids';
 import { usePlaygroundStore } from '@/store/Playground';
-import { addEdge, applyEdgeChanges, applyNodeChanges, Background, BackgroundVariant, Connection, Controls, EdgeChange, NodeChange, ReactFlow, ReactFlowProvider, SelectionMode, useReactFlow, useStoreApi } from '@xyflow/react';
+import { addEdge, applyEdgeChanges, applyNodeChanges, Background, BackgroundVariant, Connection, Controls, EdgeChange, NodeChange, ReactFlow, ReactFlowProvider, SelectionMode, useReactFlow, useStoreApi, Panel } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useCallback, useEffect } from 'react';
 
@@ -110,6 +111,9 @@ function PlaygroundContent() {
             >
                 <Background variant={BackgroundVariant.Dots} />
                 <Controls />
+                <Panel position="top-right" className="m-2">
+                    <ApiKeyDialog />
+                </Panel>
             </ReactFlow>
         </div>
     );

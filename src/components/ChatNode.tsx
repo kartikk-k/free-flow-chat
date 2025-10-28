@@ -15,19 +15,25 @@ function ChatNode(props: NodeProps) {
     const [question, setQuestion] = useState('');
     const [nodeChat, setNodeChat] = useState<NodeChat | null>(null);
 
-    const { selectedNodeId, selectedNodeHistoricalNodeIds, nodeChats, connectors } = usePlaygroundStore();
+    const { selectedNodeId, selectedNodeHistoricalNodeIds, apiKey } = usePlaygroundStore();
 
     const { messages, sendMessage, status, setMessages, error } = useChat({
         transport: new DefaultChatTransport({
-            api: `/api/agent`,
+            api: apiKey ? `/api/agent?apiKey=${encodeURIComponent(apiKey)}` : `/api/agent`,
         }),
         onFinish: () => {
         },
         onError: () => {
-            // setError(false)
             setSubmitted(false)
         },
     });
+
+
+    useEffect(() => {
+        if (error && !apiKey) {
+            alert("Please add API key from top right!")
+        }
+    }, [error])
 
     useEffect(() => {
         const chat = getNodeChat(props.id)
@@ -40,7 +46,6 @@ function ChatNode(props: NodeProps) {
 
     const handleSendMessage = () => {
         setSubmitted(true);
-        // setError(false)
 
         // set historicals
         let messageHistory: any[] = [];
