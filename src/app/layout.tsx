@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Provider from "./provider";
+import { Analytics } from '@vercel/analytics/next';
 
 
 const inter = Inter({
@@ -35,6 +36,7 @@ export default function RootLayout({
       <body
         className={`${inter.variable} antialiased`}
       >
+        <Analytics />
         <Provider>
           {children}
         </Provider>
