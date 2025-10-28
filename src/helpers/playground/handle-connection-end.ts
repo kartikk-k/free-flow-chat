@@ -1,9 +1,10 @@
-import { addEdge } from '@xyflow/react';
+import { addEdge, type ReactFlowStore } from '@xyflow/react';
 
 interface HandleConnectionEndParams {
     event: MouseEvent | TouchEvent;
     connectionState: any;
     screenToFlowPosition: (pos: { x: number; y: number }) => { x: number; y: number };
+    store: ReactFlowStore;
     nodes: any[];
     setNodes: (nodes: any[]) => void;
     connectors: any[];
@@ -14,6 +15,7 @@ export default function handleConnectionEnd({
     event,
     connectionState,
     screenToFlowPosition,
+    store,
     nodes,
     setNodes,
     connectors,
@@ -36,18 +38,28 @@ export default function handleConnectionEnd({
 
         console.log('No target node found and connection from bottom handle, creating new node');
 
+        // Get the parent node to calculate width offset
+        // @ts-ignore
+        const { nodeLookup } = store.getState();
+        const parentNode = connectionState?.fromNode ? nodeLookup.get(connectionState.fromNode.id) : null;
+
+        console.log('Parent node:', parentNode);
+
         // Get the exact screen coordinates where the connection was dropped
-        let clientX: number, clientY: number;
+        const isTouchEvent = 'touches' in event;
+        let clientX = isTouchEvent ? event.touches[0].clientX : event.clientX;
+        let clientY = isTouchEvent ? event.touches[0].clientY : event.clientY;
 
-        if ('changedTouches' in event) {
-            clientX = event.changedTouches[0].clientX;
-            clientY = event.changedTouches[0].clientY;
-        } else {
-            // parent node width
+        console.log('Screen coordinates (before adjustment):', { clientX, clientY });
 
-            clientX = event.clientX;
-            clientY = event.clientY;
+        // Subtract half of the parent node's width from clientX
+        if (parentNode?.measured?.width) {
+            const halfWidth = parentNode.measured.width / 4 ;
+            clientX -= halfWidth;
+            console.log('Parent node width:', parentNode.measured.width, 'Half width:', halfWidth);
         }
+
+        console.log('Screen coordinates (after adjustment):', { clientX, clientY });
 
         // Convert screen coordinates to flow coordinates (accounts for zoom and pan)
         const position = screenToFlowPosition({
@@ -55,8 +67,7 @@ export default function handleConnectionEnd({
             y: clientY,
         });
 
-        console.log('Screen coordinates:', { clientX, clientY });
-        console.log('Flow position:', position);
+        console.log('Flow position (final):', position);
 
         // Create new node
         const newNode = {

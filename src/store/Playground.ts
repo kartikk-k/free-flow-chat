@@ -12,6 +12,12 @@ interface PlaygroundStore {
 
     nodeChats: NodeChat[]
     setNodeChats: (nodeChat: NodeChat[]) => void;
+
+    selectedNodeId: string | null;
+    setSelectedNodeId: (nodeId: string | null) => void;
+
+    selectedNodeHistoricalNodeIds: string[] | null;
+    setSelectedNodeHistoricalNodeIds: (nodeIds: string[] | null) => void;  
 }
 
 export const usePlaygroundStore = create<PlaygroundStore>((set) => ({
@@ -22,6 +28,12 @@ export const usePlaygroundStore = create<PlaygroundStore>((set) => ({
     setConnectors: (connectors) => set({ connectors }),
 
     nodeChats: [],
-    setNodeChats: (nodeChats) => set({ nodeChats })
+    setNodeChats: (nodeChats) => set({ nodeChats }),
+
+    selectedNodeId: null,
+    setSelectedNodeId: (selectedNodeId) => set({ selectedNodeId }),
+
+    selectedNodeHistoricalNodeIds: null,
+    setSelectedNodeHistoricalNodeIds: (selectedNodeHistoricalNodeIds) => set({ selectedNodeHistoricalNodeIds })
 
 }));
