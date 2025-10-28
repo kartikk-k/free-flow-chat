@@ -54,9 +54,10 @@ button {
 	cursor: pointer;
 }
 
-a[href="https://reactflow.dev"]{ /* temporary hide reactflow.dev link (add back later) */
+/* temporary hide reactflow.dev link (add back later) */
+/* a[href="https://reactflow.dev"]{ 
 	display: none;
-}
+} */
 
 :root {
 	--radius: 0.625rem;

@@ -1,9 +1,12 @@
-import Playground from '@/components/playground'
+import { redirect } from "next/navigation"
 
 function App() {
+  
+  redirect('/chats')
+
   return (
     <div>
-      <Playground />
+      
     </div>
   )
 }
