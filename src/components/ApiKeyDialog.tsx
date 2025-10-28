@@ -48,6 +48,7 @@ export function ApiKeyDialog() {
         setSaveStatus('idle');
         setOpen(false);
       }, 1000);
+      window.location.reload();
     } else {
       setSaveStatus('error');
       setTimeout(() => setSaveStatus('idle'), 2000);
@@ -82,10 +83,10 @@ export function ApiKeyDialog() {
         <Button
           variant="outline"
           size="icon"
-          className="rounded-lg"
+          className="rounded-lg shadow-none bg-black/10 border-none"
           title="API Settings"
         >
-          <Settings className="h-4 w-4" />
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><title>key-2</title><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" stroke="currentColor"><line x1="8.296" y1="9.704" x2="15.25" y2="2.75"></line><line x1="14" y1="4" x2="16" y2="6"></line><line x1="12" y1="6" x2="14" y2="8"></line><circle cx="6" cy="12" r="3.25"></circle></g></svg>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[580px]">

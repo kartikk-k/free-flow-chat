@@ -23,7 +23,7 @@ const nodeTypes = {
 
 function PlaygroundContent() {
 
-    const { nodes, setNodes, connectors, setConnectors, setSelectedNodeId, selectedNodeId, setSelectedNodeHistoricalNodeIds, nodeChats } = usePlaygroundStore();
+    const { nodes, setNodes, connectors, setConnectors, setSelectedNodeId, selectedNodeId, setSelectedNodeHistoricalNodeIds, nodeChats, apiKey } = usePlaygroundStore();
     const { screenToFlowPosition } = useReactFlow();
     const store = useStoreApi();
 
@@ -59,7 +59,7 @@ function PlaygroundContent() {
 
     const onNodesChange = useCallback(
         (changes: NodeChange[]) => setNodes(applyNodeChanges(changes, nodes)),
-        [nodes, setNodes, nodeChats],
+        [nodes, setNodes, nodeChats, apiKey],
     );
     const onEdgesChange = useCallback(
         (changes: EdgeChange[]) => setConnectors(applyEdgeChanges(changes, connectors)),

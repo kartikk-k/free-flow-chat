@@ -37,8 +37,26 @@ function ChatNode(props: NodeProps) {
 
     useEffect(() => {
         const chat = getNodeChat(props.id)
-        if (chat) setNodeChat(chat)
-    }, [props.id])
+        if (chat) {
+            setNodeChat(chat)
+            // If chat exists with messages, set submitted to true and load messages
+            if (chat.messages && chat.messages.length > 0) {
+                setSubmitted(true)
+                setMessages(chat.messages)
+                // Get the user's question from the first message
+                const firstUserMessage = chat.messages.find(msg => msg.role === 'user')
+                if (firstUserMessage && firstUserMessage.parts && firstUserMessage.parts[0]) {
+                    const text = firstUserMessage.parts[0].text || ''
+                    // Extract the query from the formatted message
+                    // @ts-ignore
+                    const queryMatch = text.match(/Query:\s*(.+)/s)
+                    if (queryMatch) {
+                        setQuestion(queryMatch[1].trim())
+                    }
+                }
+            }
+        }
+    }, [props.id, setMessages])
 
     useEffect(() => {
         attachMessageToNode(props.id, messages)

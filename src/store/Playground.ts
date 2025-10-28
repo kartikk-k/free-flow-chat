@@ -21,6 +21,8 @@ interface PlaygroundStore {
 
     apiKey: string | null;
     setApiKey: (apiKey: string | null) => void;
+
+    reset: () => void;
 }
 
 export const usePlaygroundStore = create<PlaygroundStore>((set) => ({
@@ -40,6 +42,16 @@ export const usePlaygroundStore = create<PlaygroundStore>((set) => ({
     setSelectedNodeHistoricalNodeIds: (selectedNodeHistoricalNodeIds) => set({ selectedNodeHistoricalNodeIds }),
 
     apiKey: null,
-    setApiKey: (apiKey) => set({ apiKey })
+    setApiKey: (apiKey) => set({ apiKey }),
+
+    reset: () => {
+        set({
+            nodes: [],
+            connectors: [],
+            nodeChats: [],
+            selectedNodeId: null,
+            selectedNodeHistoricalNodeIds: null,
+        })
+    }
 
 }));
