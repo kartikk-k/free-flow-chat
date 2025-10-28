@@ -63,6 +63,7 @@ function ChatNode(props: NodeProps) {
     }, [messages, props.id])
 
     const handleSendMessage = () => {
+        if(!apiKey?.trim()) return alert("Please add API key from top right!")
         setSubmitted(true);
 
         // set historicals

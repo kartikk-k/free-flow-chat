@@ -60,6 +60,7 @@ export function ApiKeyDialog() {
     setApiKey(null);
     setApiKeyInput('');
     setSaveStatus('success');
+    window.location.reload();
     setTimeout(() => {
       setSaveStatus('idle');
       setOpen(false);
@@ -77,7 +78,15 @@ export function ApiKeyDialog() {
     }
   };
 
-  return (
+  useEffect(() => {
+    if(!apiKey?.trim()){
+      setOpen(true);
+    }else{
+      setOpen(false);
+    }
+  }, [apiKey])
+
+   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button
