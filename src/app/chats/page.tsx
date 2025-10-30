@@ -6,6 +6,7 @@ import { Plus, MessageSquare, Trash2, Clock } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { getAllChats, deleteChat, type ChatRecord } from '@/lib/db/indexeddb';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 function ChatsPage() {
   const router = useRouter();
@@ -82,15 +83,18 @@ function ChatsPage() {
             <p className="text-black/60 text-[13px]">Manage and access your conversation history</p>
           </div>
 
-          <div>
+          <div className='flex items-center gap-2'>
             <Button
               onClick={handleNewChat}
-              className="text-sm bg bg-black px-3 pr-4 rounded-full"
+              className="text-sm bg bg-[#88EAC9] text-[#2D3432] px-3 pr-5 rounded-full hover:brightness-90 font-semibold"
               size="lg"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><title>msg-plus</title><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" stroke="currentColor"><path d="M14.75 12.25V17.25"></path> <path d="M16.2155 9.64111C16.2364 9.42991 16.25 9.2168 16.25 9C16.25 4.9961 13.004 1.75 9 1.75C4.996 1.75 1.75 4.9961 1.75 9C1.75 10.3188 2.10801 11.552 2.72301 12.6169C3.15301 13.4228 2.67 15.3291 1.75 16.25C3 16.3179 4.647 15.7529 5.383 15.2769C5.872 15.5591 6.647 15.9331 7.662 16.125C8.095 16.207 8.543 16.25 9 16.25C9.2167 16.25 9.4299 16.2363 9.6412 16.2156"></path> <path d="M17.25 14.75H12.25"></path></g></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><title>plus</title><g fill="currentColor"><path d="M14.75,9.75H3.25c-.414,0-.75-.336-.75-.75s.336-.75,.75-.75H14.75c.414,0,.75,.336,.75,.75s-.336,.75-.75,.75Z"></path><path d="M9,15.5c-.414,0-.75-.336-.75-.75V3.25c0-.414,.336-.75,.75-.75s.75,.336,.75,.75V14.75c0,.414-.336,.75-.75,.75Z"></path></g></svg>
               Create New Chat
             </Button>
+            <Link href={'https://x.com/kartik_builds/'} target='_blank'>
+              <svg viewBox="0 0 24 24" aria-hidden="true" className='size-5' fill="currentColor" stroke="none" stroke-width="1px" opacity="1" filter="none"><g><path d="M21.742 21.75l-7.563-11.179 7.056-8.321h-2.456l-5.691 6.714-4.54-6.714H2.359l7.29 10.776L2.25 21.75h2.456l6.035-7.118 4.818 7.118h6.191-.008zM7.739 3.818L18.81 20.182h-2.447L5.29 3.818h2.447z"></path></g></svg>
+            </Link>
           </div>
         </div>
 
@@ -103,7 +107,7 @@ function ChatsPage() {
         ) : chats.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-3xl border border-black/10 flex flex-col items-center justify-center">
             <div className='text-black/50'>
-            <svg xmlns="http://www.w3.org/2000/svg" className='size-8' width="18" height="18" viewBox="0 0 18 18"><title>msg-content</title><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" stroke="currentColor"><path d="M9,1.75C4.996,1.75,1.75,4.996,1.75,9c0,1.319,.358,2.552,.973,3.617,.43,.806-.053,2.712-.973,3.633,1.25,.068,2.897-.497,3.633-.973,.489,.282,1.264,.656,2.279,.848,.433,.082,.881,.125,1.338,.125,4.004,0,7.25-3.246,7.25-7.25S13.004,1.75,9,1.75Z"></path><line x1="5.75" y1="7.25" x2="12.25" y2="7.25"></line><line x1="5.75" y1="10.75" x2="10.25" y2="10.75"></line></g></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" className='size-8' width="18" height="18" viewBox="0 0 18 18"><title>msg-content</title><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" stroke="currentColor"><path d="M9,1.75C4.996,1.75,1.75,4.996,1.75,9c0,1.319,.358,2.552,.973,3.617,.43,.806-.053,2.712-.973,3.633,1.25,.068,2.897-.497,3.633-.973,.489,.282,1.264,.656,2.279,.848,.433,.082,.881,.125,1.338,.125,4.004,0,7.25-3.246,7.25-7.25S13.004,1.75,9,1.75Z"></path><line x1="5.75" y1="7.25" x2="12.25" y2="7.25"></line><line x1="5.75" y1="10.75" x2="10.25" y2="10.75"></line></g></svg>
             </div>
             <h3 className="font-medium text-black mt-4">No chats yet</h3>
             <p className="text-black/50 text-sm">Create your first chat to get started</p>

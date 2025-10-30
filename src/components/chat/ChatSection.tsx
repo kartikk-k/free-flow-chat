@@ -15,9 +15,9 @@ function ChatSection({ messages, status }: { messages: UIMessage<unknown, UIData
             {messages.map(msg => (
                 <div>
                     {msg.role !== 'user' && (
-                        <>
+                        <div key={msg.id}>
                             {msg.parts.map((part, index) => (
-                                <div className='space-y-4'>
+                                <div className='space-y-4' key={index}>
                                     {part.type === 'reasoning' ? (
                                         <div className='text-xs mb-2'>
                                             {part.state === 'streaming' ? (
@@ -48,7 +48,7 @@ function ChatSection({ messages, status }: { messages: UIMessage<unknown, UIData
                                         )}
                                 </div>
                             ))}
-                        </>
+                        </div>
                     )}
                 </div>
             ))}

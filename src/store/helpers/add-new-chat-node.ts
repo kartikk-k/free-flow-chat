@@ -1,7 +1,6 @@
 import { v4 as uuid } from 'uuid';
-import { usePlaygroundStore } from "../Playground";
 import { NodeChat } from '../../../typings';
-
+import { usePlaygroundStore } from "../Playground";
 
 
 export default function addNewChatNode(nodeId?: string, source?: string) {
@@ -16,8 +15,14 @@ export default function addNewChatNode(nodeId?: string, source?: string) {
         if (node) {
             ({ x, y } = node.position)
         }
-        x += 800
-        y = y
+
+        if (!source) {
+            x += 0
+            y += (node?.measured?.height || 0) + 100
+        } else {
+            x += (node?.measured?.width || 0) + 100
+            y += 0
+        }
     }
 
     const id = uuid()
@@ -42,9 +47,10 @@ export default function addNewChatNode(nodeId?: string, source?: string) {
     }
 
 
-
     store.setNodes([...store.nodes, newNode])
     if (nodeId) {
-        store.setConnectors([...store.connectors, { id: uuid(), source: nodeId, target: newNode.id, sourceHandle: 'a3', targetHandle: 'a2' }])
+        store.setConnectors([...store.connectors, { id: uuid(), source: nodeId, target: newNode.id, sourceHandle: source ? 'a3' : 'a4', targetHandle: source ? 'a2' : 'a1' }])
     }
+
+    store.setFitViewNodeId(newNode.id)
 }

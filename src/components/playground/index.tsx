@@ -23,14 +23,29 @@ const nodeTypes = {
 
 function PlaygroundContent() {
 
-    const { nodes, setNodes, connectors, setConnectors, setSelectedNodeId, selectedNodeId, setSelectedNodeHistoricalNodeIds, nodeChats, apiKey } = usePlaygroundStore();
-    const { screenToFlowPosition } = useReactFlow();
+    const { nodes, setNodes, connectors, setConnectors, setSelectedNodeId, selectedNodeId, setSelectedNodeHistoricalNodeIds, nodeChats, apiKey, fitViewNodeId, setFitViewNodeId } = usePlaygroundStore();
+    const { screenToFlowPosition, fitView } = useReactFlow();
     const store = useStoreApi();
 
     useEffect(() => {
         if (nodes.length) return;
         setNodes(initialNodes);
     }, [nodes, setNodes])
+
+    useEffect(() => {
+        if (fitViewNodeId) {
+            const node = nodes.find(node => node.id === fitViewNodeId);
+
+            if (node) {
+                fitView({
+                    nodes: [node],
+                    maxZoom: 0.8,
+                    duration: 600,
+                })
+            }
+        }
+    }, [fitViewNodeId,])
+
 
     // update selected node when selection changes
     useEffect(() => {
