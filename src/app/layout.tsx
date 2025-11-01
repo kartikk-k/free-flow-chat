@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Provider from "./provider";
 import { Analytics } from '@vercel/analytics/next';
+import { ThemeProvider } from '@/components/ThemeProvider';
 
 
 const inter = Inter({
@@ -32,14 +33,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${inter.variable} antialiased`}
       >
         <Analytics />
-        <Provider>
-          {children}
-        </Provider>
+        <ThemeProvider defaultTheme="light" storageKey="pod-ai-theme">
+          <Provider>
+            {children}
+          </Provider>
+        </ThemeProvider>
       </body>
     </html>
   );

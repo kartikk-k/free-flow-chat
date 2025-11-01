@@ -2,6 +2,7 @@
 
 import ChatNode from '@/components/ChatNode';
 import { ApiKeyDialog } from '@/components/ApiKeyDialog';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import handleConnectionEnd from '@/helpers/playground/handle-connection-end';
 import { getHistoricalNodeIds } from '@/helpers/playground/get-historical-node-ids';
 import { usePlaygroundStore } from '@/store/Playground';
@@ -125,8 +126,9 @@ function PlaygroundContent() {
                 fitView
             >
                 <Background variant={BackgroundVariant.Dots} />
-                <Controls />
-                <Panel position="top-right" className="m-2">
+                {/* <Controls /> */}
+                <Panel position="top-right" className="m-2 flex items-center gap-2">
+                    <ThemeToggle />
                     <ApiKeyDialog />
                 </Panel>
             </ReactFlow>
