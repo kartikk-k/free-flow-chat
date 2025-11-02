@@ -1,15 +1,18 @@
 import { getHistoricalNodeIds } from '@/helpers/playground/get-historical-node-ids';
 import { addNewChatNode, attachMessageToNode, getNodeChat, deleteNode } from '@/store/helpers';
+import { v4 as uuid } from 'uuid';
 import { usePlaygroundStore } from '@/store/Playground';
 import { useChat } from '@ai-sdk/react';
 import { Handle, NodeProps, Position } from '@xyflow/react';
 import { DefaultChatTransport } from 'ai';
-import { useEffect, useState, startTransition } from 'react';
+import { useEffect, useState, startTransition, useMemo, useRef, useCallback } from 'react';
 import { NodeChat } from '../../../typings';
 import ChatSection from '../chat/ChatSection';
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from '../ui/context-menu';
 import { ModelSwitcher } from '../ModelSwitcher';
-import { DEFAULT_MODELS, getProviderFromModelId } from '@/lib/models/config';
+import { getProviderFromModelId, getBestDefaultModel } from '@/lib/models/config';
+import { CopyButton } from '../ui/copy-button';
+import { extractResponseText } from '@/lib/utils/extract-response-text';
 
 function ChatNode(props: NodeProps) {
 
@@ -17,30 +20,59 @@ function ChatNode(props: NodeProps) {
     const [question, setQuestion] = useState('');
     const [nodeChat, setNodeChat] = useState<NodeChat | null>(null);
     
-    // Initialize modelId from persisted state using lazy initializer
+    const { selectedNodeId, selectedNodeHistoricalNodeIds, apiKeys, getApiKey } = usePlaygroundStore();
+    
+    // Track if model was manually changed by user to prevent auto-override
+    const modelManuallySetRef = useRef(false);
+    
+    // Initialize modelId from persisted state or best available model
     const [currentModelId, setCurrentModelId] = useState<string>(() => {
         const chat = getNodeChat(props.id);
-        return chat?.modelId || DEFAULT_MODELS.openai;
+        if (chat?.modelId) {
+            return chat.modelId;
+        }
+        // Get API keys from store state if available
+        const store = usePlaygroundStore.getState();
+        return getBestDefaultModel(store.apiKeys);
     });
 
-    const { selectedNodeId, selectedNodeHistoricalNodeIds, apiKeys, getApiKey } = usePlaygroundStore();
+    // Use ref to always have current modelId for transport body function
+    // This ensures the body function always reads the latest modelId
+    const currentModelIdRef = useRef(currentModelId);
+    useEffect(() => {
+        currentModelIdRef.current = currentModelId;
+        console.log('Model ID ref updated to:', currentModelId);
+    }, [currentModelId]);
 
     // Build API URL with all provider keys
-    const buildApiUrl = () => {
+    const buildApiUrl = useCallback(() => {
         const params = new URLSearchParams();
         if (apiKeys.openai) params.append('openaiKey', apiKeys.openai);
         if (apiKeys.anthropic) params.append('anthropicKey', apiKeys.anthropic);
         if (apiKeys.google) params.append('googleKey', apiKeys.google);
         return `/api/agent?${params.toString()}`;
-    };
+    }, [apiKeys]);
+
+    // Create transport with body as function to always use current modelId from ref
+    // The transport is created once, but body function reads from ref each time
+    const transport = useMemo(() => {
+        console.log('Creating transport (initial modelId):', currentModelId);
+        return new DefaultChatTransport({
+            api: buildApiUrl(),
+            body: () => {
+                // Always read from ref to get the latest modelId at request time
+                const modelId = currentModelIdRef.current;
+                console.log('Transport body function called, using modelId:', modelId);
+                return {
+                    modelId: modelId,
+                };
+            },
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [buildApiUrl]); // Intentionally don't depend on currentModelId - use ref instead
 
     const { messages, sendMessage, status, setMessages, error } = useChat({
-        transport: new DefaultChatTransport({
-            api: buildApiUrl(),
-            body: {
-                modelId: currentModelId,
-            },
-        }),
+        transport,
         onFinish: () => {
         },
         onError: () => {
@@ -87,15 +119,35 @@ function ChatNode(props: NodeProps) {
     }, [props.id, setMessages])
 
     // Separate effect to sync modelId from chat when it changes externally
+    // This only runs on mount or when the node ID changes
     useEffect(() => {
         const chat = getNodeChat(props.id);
+        console.log('Syncing modelId from chat:', { 
+            nodeId: props.id, 
+            chatModelId: chat?.modelId, 
+            currentModelId,
+            hasChat: !!chat
+        });
+        
         if (chat?.modelId && chat.modelId !== currentModelId) {
-            // Use startTransition to defer state update and avoid synchronous setState in effect
+            // Load saved model from chat
+            console.log('Loading saved model from chat:', chat.modelId);
+            modelManuallySetRef.current = false; // Reset flag when loading from chat
             startTransition(() => {
                 setCurrentModelId(chat.modelId!);
             });
+        } else if (!chat?.modelId && !modelManuallySetRef.current) {
+            // Only set default if no saved model exists AND user hasn't manually set it
+            const bestModel = getBestDefaultModel(apiKeys);
+            if (bestModel !== currentModelId) {
+                console.log('Setting default model:', bestModel);
+                startTransition(() => {
+                    setCurrentModelId(bestModel);
+                });
+            }
         }
-    }, [props.id, currentModelId])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [props.id]) // Only depend on props.id, not currentModelId or apiKeys
 
     useEffect(() => {
         attachMessageToNode(props.id, messages)
@@ -118,6 +170,30 @@ function ChatNode(props: NodeProps) {
         const requiredKey = provider ? getApiKey(provider) : null;
         
         if (!requiredKey?.trim()) {
+            // Auto-switch to a model with available API key
+            const bestModel = getBestDefaultModel(apiKeys);
+            const bestProvider = getProviderFromModelId(bestModel);
+            const bestKey = bestProvider ? getApiKey(bestProvider) : null;
+            
+            if (bestModel && bestModel !== currentModelId && bestKey?.trim()) {
+                startTransition(() => {
+                    setCurrentModelId(bestModel);
+                    // Update chat with new model
+                    const chat = getNodeChat(props.id);
+                    if (chat) {
+                        const store = usePlaygroundStore.getState();
+                        store.setNodeChats(
+                            store.nodeChats.map(c => 
+                                c.nodeId === props.id 
+                                    ? { ...c, modelId: bestModel }
+                                    : c
+                            )
+                        );
+                    }
+                });
+                alert(`Switched to ${bestProvider || 'a compatible'} model since ${provider || 'the required'} API key is not available. Please try sending again.`);
+                return;
+            }
             alert(`Please add ${provider || 'API'} key from top right!`);
             return;
         }
@@ -207,6 +283,34 @@ function ChatNode(props: NodeProps) {
         deleteNode(props.id)
     }
 
+    // Extract response text for copying
+    const responseText = useMemo(() => {
+        return extractResponseText(messages);
+    }, [messages]);
+
+    const handleCopyResponse = async () => {
+        if (!responseText.trim()) return;
+        
+        try {
+            await navigator.clipboard.writeText(responseText);
+        } catch (err) {
+            console.error("Failed to copy response:", err);
+            // Fallback for older browsers
+            const textArea = document.createElement("textarea");
+            textArea.value = responseText;
+            textArea.style.position = "fixed";
+            textArea.style.opacity = "0";
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand("copy");
+            } catch (fallbackErr) {
+                console.error("Fallback copy failed:", fallbackErr);
+            }
+            document.body.removeChild(textArea);
+        }
+    }
+
     return (
         <ContextMenu>
             <ContextMenuTrigger>
@@ -233,11 +337,22 @@ function ChatNode(props: NodeProps) {
                                     <ModelSwitcher
                                         currentModelId={currentModelId}
                                         onModelChange={(modelId) => {
+                                            console.log('Model changed in ModelSwitcher:', { 
+                                                oldModel: currentModelId, 
+                                                newModel: modelId,
+                                                nodeId: props.id 
+                                            });
+                                            modelManuallySetRef.current = true; // Mark as manually set
+                                            
+                                            // Update state immediately
                                             setCurrentModelId(modelId);
-                                            // Update chat with new model
+                                            
+                                            // Update chat with new model immediately - create if doesn't exist
+                                            const store = usePlaygroundStore.getState();
                                             const chat = getNodeChat(props.id);
+                                            
                                             if (chat) {
-                                                const store = usePlaygroundStore.getState();
+                                                // Update existing chat
                                                 store.setNodeChats(
                                                     store.nodeChats.map(c => 
                                                         c.nodeId === props.id 
@@ -245,7 +360,19 @@ function ChatNode(props: NodeProps) {
                                                             : c
                                                     )
                                                 );
+                                            } else {
+                                                // Create new chat with the selected model
+                                                const newChat: NodeChat = {
+                                                    id: uuid(),
+                                                    nodeId: props.id,
+                                                    messages: [],
+                                                    createdAt: new Date().toISOString(),
+                                                    modelId: modelId,
+                                                };
+                                                store.setNodeChats([...store.nodeChats, newChat]);
                                             }
+                                            
+                                            console.log('Model saved to chat:', modelId);
                                         }}
                                         compact
                                     />
@@ -283,7 +410,17 @@ function ChatNode(props: NodeProps) {
                                     </p>
 
                                     {/* response */}
-                                    <div className='text-foreground/70 font-medium space-y-3 relative cursor-text'>
+                                    <div className='text-foreground/70 font-medium space-y-3 relative cursor-text group/response'>
+                                        {responseText.trim() && (
+                                            <div className='absolute -top-2 -right-2 group-hover/response:opacity-100 opacity-0 transition-opacity z-10'>
+                                                <CopyButton
+                                                    text={responseText}
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-8 w-8 bg-white/90 hover:bg-white shadow-sm border border-neutral-200/50"
+                                                />
+                                            </div>
+                                        )}
 
                                         <ChatSection
                                             messages={messages}
@@ -322,6 +459,15 @@ function ChatNode(props: NodeProps) {
                     <svg xmlns="http://www.w3.org/2000/svg" className='text-white' width="18" height="18" viewBox="0 0 18 18"><title>connection-2</title><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" stroke="currentColor"><path d="m5.75,5.25h1.25c1.1046,0,2,.8954,2,2v3.25c0,1.1046.8954,2,2,2h1.25"></path><circle cx="3.75" cy="5.25" r="2"></circle><circle cx="14.25" cy="12.75" r="2"></circle></g></svg>
                     New child
                 </ContextMenuItem>
+                {submitted && responseText.trim() && (
+                    <ContextMenuItem onClick={handleCopyResponse}>
+                        <svg xmlns="http://www.w3.org/2000/svg" className='text-white' width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="4" y="4" width="10" height="10" rx="1" />
+                            <path d="M4 6h10v-2a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v2z" />
+                        </svg>
+                        Copy response
+                    </ContextMenuItem>
+                )}
                 {/* <ContextMenuItem>Team</ContextMenuItem> */}
                 {/* <ContextMenuSeparator className='opacity-40' /> */}
                 <ContextMenuItem onClick={handleDelete} className='focus:bg-red-600/20 focus:text-red-100'>

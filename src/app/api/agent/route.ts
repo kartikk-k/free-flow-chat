@@ -3,7 +3,7 @@ import { createAnthropic } from '@ai-sdk/anthropic';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { convertToModelMessages, stepCountIs, streamText, UIMessage } from 'ai';
 import { NextRequest } from 'next/server';
-import { getModelConfig, getProviderFromModelId, DEFAULT_MODELS } from '@/lib/models/config';
+import { getModelConfig, getProviderFromModelId, DEFAULT_MODELS, getBestDefaultModel, getAllModels } from '@/lib/models/config';
 import type { ProviderId } from '@/lib/models/config';
 
 export const maxDuration = 300;
@@ -64,15 +64,51 @@ export async function POST(req: NextRequest) {
         };
 
         // Determine which model to use
-        const targetModelId = modelId || DEFAULT_MODELS.openai;
+        // Only use default if no modelId was explicitly provided
+        let targetModelId = modelId;
+        
+        console.log('API Route received:', { 
+            modelId, 
+            targetModelId, 
+            trimmed: modelId?.trim(),
+            isEmpty: !targetModelId || targetModelId.trim() === '' 
+        });
+        
+        // If no modelId provided, use best available based on API keys
+        if (!targetModelId || targetModelId.trim() === '') {
+            targetModelId = getBestDefaultModel(apiKeys);
+            console.log('Using default model:', targetModelId);
+        }
 
         // Validate model exists
-        const modelConfig = getModelConfig(targetModelId);
+        let modelConfig = getModelConfig(targetModelId);
         if (!modelConfig) {
-            return new Response(
-                JSON.stringify({ error: `Model ${targetModelId} not found` }),
-                { status: 400, headers: { 'Content-Type': 'application/json' } }
-            );
+            // Log for debugging
+            console.log('Model not found:', { 
+                requestedModelId: modelId, 
+                targetModelId, 
+                availableModels: getAllModels().map(m => m.id) 
+            });
+            
+            // If model was explicitly provided but not found, return error
+            if (modelId && modelId.trim() !== '') {
+                return new Response(
+                    JSON.stringify({ error: `Model "${targetModelId}" not found. Please select a valid model.` }),
+                    { status: 400, headers: { 'Content-Type': 'application/json' } }
+                );
+            }
+            // If it was a default that's not found, try to find any valid model for the provider
+            const fallbackModelId = getBestDefaultModel(apiKeys);
+            const fallbackConfig = getModelConfig(fallbackModelId);
+            if (fallbackConfig) {
+                targetModelId = fallbackModelId;
+                modelConfig = fallbackConfig;
+            } else {
+                return new Response(
+                    JSON.stringify({ error: `No valid model configuration available` }),
+                    { status: 400, headers: { 'Content-Type': 'application/json' } }
+                );
+            }
         }
 
         // Get the model instance
@@ -80,8 +116,10 @@ export async function POST(req: NextRequest) {
         try {
             model = getModel(targetModelId, apiKeys);
         } catch (error: any) {
+            console.error('Error creating model instance:', error);
+            const errorMessage = error.message || 'API key is required. Please add your API key in settings.';
             return new Response(
-                JSON.stringify({ error: error.message || 'API key is required. Please add your API key in settings.' }),
+                JSON.stringify({ error: errorMessage }),
                 { status: 401, headers: { 'Content-Type': 'application/json' } }
             );
         }

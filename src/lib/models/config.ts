@@ -32,7 +32,7 @@ export const MODEL_CONFIGS: Record<ProviderId, ModelConfig[]> = {
       requiresApiKey: true,
     },
     {
-      id: 'gpt-4.1 ',
+      id: 'gpt-4.1',
       provider: 'openai',
       name: 'GPT-4 Turbo',
       description: 'Smartest non-reasoning model',
@@ -123,17 +123,30 @@ export const MODEL_CONFIGS: Record<ProviderId, ModelConfig[]> = {
 };
 
 /**
+ * Normalize model configs to ensure IDs have no trailing/leading whitespace
+ */
+function normalizeModelConfigs(): ModelConfig[] {
+  return Object.values(MODEL_CONFIGS).flat().map(model => ({
+    ...model,
+    id: model.id.trim(), // Ensure no whitespace in IDs
+  }));
+}
+
+/**
  * Get all available models flattened into a single array
+ * Uses normalized configs to prevent whitespace issues
  */
 export function getAllModels(): ModelConfig[] {
-  return Object.values(MODEL_CONFIGS).flat();
+  return normalizeModelConfigs();
 }
 
 /**
  * Get model config by ID
+ * Trims whitespace and does exact match to prevent issues with trailing spaces
  */
 export function getModelConfig(modelId: string): ModelConfig | undefined {
-  return getAllModels().find((model) => model.id === modelId);
+  const trimmedId = modelId.trim();
+  return getAllModels().find((model) => model.id === trimmedId || model.id.trim() === trimmedId);
 }
 
 /**
@@ -145,9 +158,11 @@ export function getModelsByProvider(provider: ProviderId): ModelConfig[] {
 
 /**
  * Get provider from model ID
+ * Handles trimmed/normalized model IDs
  */
 export function getProviderFromModelId(modelId: string): ProviderId | null {
-  const model = getModelConfig(modelId);
+  const trimmedId = modelId.trim();
+  const model = getModelConfig(trimmedId);
   return model?.provider || null;
 }
 
@@ -156,8 +171,8 @@ export function getProviderFromModelId(modelId: string): ProviderId | null {
  */
 export const DEFAULT_MODELS: Record<ProviderId, string> = {
   openai: 'gpt-4',
-  anthropic: 'claude-3-5-sonnet-20241022',
-  google: 'gemini-1.5-pro',
+  anthropic: 'claude-sonnet-4-20250514',
+  google: 'gemini-2.5-pro',
 };
 
 /**
@@ -165,6 +180,20 @@ export const DEFAULT_MODELS: Record<ProviderId, string> = {
  */
 export function getDefaultModel(provider: ProviderId): string {
   return DEFAULT_MODELS[provider];
+}
+
+/**
+ * Get the best default model based on available API keys
+ * Returns the first available provider's default model, or OpenAI as fallback
+ */
+export function getBestDefaultModel(apiKeys: Record<ProviderId, string | null>): string {
+  // Check in order of preference
+  if (apiKeys.openai) return DEFAULT_MODELS.openai;
+  if (apiKeys.google) return DEFAULT_MODELS.google;
+  if (apiKeys.anthropic) return DEFAULT_MODELS.anthropic;
+  
+  // Fallback to OpenAI if no keys are available
+  return DEFAULT_MODELS.openai;
 }
 
 /**
