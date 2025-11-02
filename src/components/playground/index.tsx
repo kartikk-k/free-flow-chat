@@ -1,6 +1,6 @@
 "use client"
 
-import ChatNode from '@/components/ChatNode';
+import ChatNode from '@/components/nodes/ChatNode';
 import { ApiKeyDialog } from '@/components/ApiKeyDialog';
 import handleConnectionEnd from '@/helpers/playground/handle-connection-end';
 import { getHistoricalNodeIds } from '@/helpers/playground/get-historical-node-ids';

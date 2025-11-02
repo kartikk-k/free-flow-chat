@@ -5,9 +5,9 @@ import { useChat } from '@ai-sdk/react';
 import { Handle, NodeProps, Position } from '@xyflow/react';
 import { DefaultChatTransport } from 'ai';
 import { useEffect, useState } from 'react';
-import { NodeChat } from '../../typings';
-import ChatSection from './chat/ChatSection';
-import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from './ui/context-menu';
+import { NodeChat } from '../../../typings';
+import ChatSection from '../chat/ChatSection';
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from '../ui/context-menu';
 
 
 function ChatNode(props: NodeProps) {
