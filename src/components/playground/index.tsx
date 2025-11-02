@@ -1,19 +1,17 @@
 "use client"
 
-import ChatNode from '@/components/ChatNode';
 import { ApiKeyDialog } from '@/components/ApiKeyDialog';
-import handleConnectionEnd from '@/helpers/playground/handle-connection-end';
+import ChatNode from '@/components/nodes/ChatNode';
 import { getHistoricalNodeIds } from '@/helpers/playground/get-historical-node-ids';
+import handleConnectionEnd from '@/helpers/playground/handle-connection-end';
 import { usePlaygroundStore } from '@/store/Playground';
-import { addEdge, applyEdgeChanges, applyNodeChanges, Background, BackgroundVariant, Connection, Controls, EdgeChange, NodeChange, ReactFlow, ReactFlowProvider, SelectionMode, useReactFlow, useStoreApi, Panel } from '@xyflow/react';
+import { addEdge, applyEdgeChanges, applyNodeChanges, Background, BackgroundVariant, Connection, Controls, EdgeChange, NodeChange, Panel, ReactFlow, ReactFlowProvider, SelectionMode, useReactFlow, useStoreApi } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useCallback, useEffect } from 'react';
 
 const initialNodes = [
     { id: 'n1', position: { x: 0, y: 200 }, data: { label: 'Node 3' }, type: 'chatNode', dragHandle: '.drag-handle__ChatNode' },
-    // { id: 'n2', position: { x: 200, y: 600 }, data: { label: 'Node 4' }, type: 'chatNode', dragHandle: '.drag-handle__ChatNode' },
 ];
-// const initialEdges = [{ id: 'n3-n4', source: 'n3', target: 'n4' }];
 
 
 const nodeTypes = {

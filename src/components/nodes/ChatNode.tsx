@@ -5,10 +5,10 @@ import { useChat } from '@ai-sdk/react';
 import { Handle, NodeProps, Position } from '@xyflow/react';
 import { DefaultChatTransport } from 'ai';
 import { useEffect, useState, startTransition } from 'react';
-import { NodeChat } from '../../typings';
-import ChatSection from './chat/ChatSection';
-import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from './ui/context-menu';
-import { ModelSwitcher } from './ModelSwitcher';
+import { NodeChat } from '../../../typings';
+import ChatSection from '../chat/ChatSection';
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from '../ui/context-menu';
+import { ModelSwitcher } from '../ModelSwitcher';
 import { DEFAULT_MODELS, getProviderFromModelId } from '@/lib/models/config';
 
 function ChatNode(props: NodeProps) {
