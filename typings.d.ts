@@ -6,4 +6,5 @@ type NodeChat = {
     nodeId: string
     messages: any[]
     source?: string
+    modelId?: string // Model ID for this chat node (e.g., 'gpt-4', 'claude-3-5-sonnet-20241022')
 }

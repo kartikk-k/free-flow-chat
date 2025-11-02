@@ -1,9 +1,14 @@
 /**
  * LocalStorage helper functions for managing API keys and application state
+ * Extended to support multiple providers
  */
+
+export type ProviderId = 'openai' | 'anthropic' | 'google';
 
 const STORAGE_KEYS = {
   OPENAI_API_KEY: 'pod-ai:openai-api-key',
+  ANTHROPIC_API_KEY: 'pod-ai:anthropic-api-key',
+  GOOGLE_API_KEY: 'pod-ai:google-api-key',
 } as const;
 
 /**
@@ -60,25 +65,65 @@ export function removeStorageItem(key: string): boolean {
 }
 
 /**
- * Get the OpenAI API key from localStorage
+ * Get API key for a specific provider
  */
-export function getApiKey(): string | null {
-  return getStorageItem(STORAGE_KEYS.OPENAI_API_KEY);
+export function getApiKey(provider: ProviderId): string | null {
+  const keyMap: Record<ProviderId, string> = {
+    openai: STORAGE_KEYS.OPENAI_API_KEY,
+    anthropic: STORAGE_KEYS.ANTHROPIC_API_KEY,
+    google: STORAGE_KEYS.GOOGLE_API_KEY,
+  };
+  return getStorageItem(keyMap[provider]);
 }
 
 /**
- * Save the OpenAI API key to localStorage
+ * Save API key for a specific provider
  */
-export function saveApiKey(apiKey: string): boolean {
+export function saveApiKey(provider: ProviderId, apiKey: string): boolean {
+  const keyMap: Record<ProviderId, string> = {
+    openai: STORAGE_KEYS.OPENAI_API_KEY,
+    anthropic: STORAGE_KEYS.ANTHROPIC_API_KEY,
+    google: STORAGE_KEYS.GOOGLE_API_KEY,
+  };
+
   if (!apiKey || apiKey.trim() === '') {
-    return removeApiKey();
+    return removeApiKey(provider);
   }
-  return setStorageItem(STORAGE_KEYS.OPENAI_API_KEY, apiKey.trim());
+  return setStorageItem(keyMap[provider], apiKey.trim());
 }
 
 /**
- * Remove the OpenAI API key from localStorage
+ * Remove API key for a specific provider
  */
-export function removeApiKey(): boolean {
-  return removeStorageItem(STORAGE_KEYS.OPENAI_API_KEY);
+export function removeApiKey(provider: ProviderId): boolean {
+  const keyMap: Record<ProviderId, string> = {
+    openai: STORAGE_KEYS.OPENAI_API_KEY,
+    anthropic: STORAGE_KEYS.ANTHROPIC_API_KEY,
+    google: STORAGE_KEYS.GOOGLE_API_KEY,
+  };
+  return removeStorageItem(keyMap[provider]);
+}
+
+/**
+ * Get all API keys
+ */
+export function getAllApiKeys(): Record<ProviderId, string | null> {
+  return {
+    openai: getApiKey('openai'),
+    anthropic: getApiKey('anthropic'),
+    google: getApiKey('google'),
+  };
+}
+
+// Legacy functions for backward compatibility
+export function getApiKey_legacy(): string | null {
+  return getApiKey('openai');
+}
+
+export function saveApiKey_legacy(apiKey: string): boolean {
+  return saveApiKey('openai', apiKey);
+}
+
+export function removeApiKey_legacy(): boolean {
+  return removeApiKey('openai');
 }

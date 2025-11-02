@@ -1,6 +1,7 @@
 import { v4 as uuid } from 'uuid';
 import { NodeChat } from '../../../typings';
 import { usePlaygroundStore } from "../Playground";
+import { DEFAULT_MODELS } from '@/lib/models/config';
 
 
 export default function addNewChatNode(nodeId?: string, source?: string) {
@@ -41,7 +42,8 @@ export default function addNewChatNode(nodeId?: string, source?: string) {
             createdAt: new Date().toISOString(),
             messages: [],
             source: source,
-            nodeId: id
+            nodeId: id,
+            modelId: DEFAULT_MODELS.openai
         }
         store.setNodeChats([...store.nodeChats, newChat])
     }
