@@ -1,4 +1,4 @@
-import { usePlaygroundStore } from "../Playground";
+import { usePlaygroundStore } from "@/store/Playground";
 
 
 export default function getNodeChat(nodeId: string) {

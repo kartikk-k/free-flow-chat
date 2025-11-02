@@ -1,4 +1,4 @@
-import { usePlaygroundStore } from "../Playground";
+import { usePlaygroundStore } from "@/store/Playground";
 
 export default function deleteNode(nodeId: string) {
     const store = usePlaygroundStore.getState()

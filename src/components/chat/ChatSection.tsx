@@ -1,4 +1,3 @@
-import { addNewChatNode } from '@/store/helpers';
 import { UIDataTypes, UIMessage, UITools } from 'ai';
 import { Response } from '../ai-elements/response';
 
@@ -12,8 +11,8 @@ function ChatSection({ messages, status }: { messages: UIMessage<unknown, UIData
                 </div>
             )}
 
-            {messages.map(msg => (
-                <div>
+            {messages.map((msg, msgIndex) => (
+                <div key={msgIndex}>
                     {msg.role !== 'user' && (
                         <div key={msg.id}>
                             {msg.parts.map((part, index) => (

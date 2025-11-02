@@ -1,13 +1,12 @@
-import { getHistoricalNodeIds } from '@/helpers/playground/get-historical-node-ids';
-import { addNewChatNode, attachMessageToNode, getNodeChat, deleteNode } from '@/store/helpers';
+import { PlaygroundActions, getHistoricalNodeIds } from '@/lib/playground';
 import { usePlaygroundStore } from '@/store/Playground';
 import { useChat } from '@ai-sdk/react';
 import { Handle, NodeProps, Position } from '@xyflow/react';
 import { DefaultChatTransport } from 'ai';
 import { useEffect, useState } from 'react';
-import { NodeChat } from '../../../typings';
+import { NodeChat } from '@/types/chat';
 import ChatSection from '../chat/ChatSection';
-import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from '../ui/context-menu';
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from '../ui/context-menu';
 
 
 function ChatNode(props: NodeProps) {
@@ -37,7 +36,7 @@ function ChatNode(props: NodeProps) {
     }, [error])
 
     useEffect(() => {
-        const chat = getNodeChat(props.id)
+        const chat = PlaygroundActions.getNodeChat(props.id)
         if (chat) {
             setNodeChat(chat)
             // If chat exists with messages, set submitted to true and load messages
@@ -45,7 +44,7 @@ function ChatNode(props: NodeProps) {
                 setSubmitted(true)
                 setMessages(chat.messages)
                 // Get the user's question from the first message
-                const firstUserMessage = chat.messages.find(msg => msg.role === 'user')
+                const firstUserMessage = chat.messages.find((msg: any) => msg.role === 'user')
                 if (firstUserMessage && firstUserMessage.parts && firstUserMessage.parts[0]) {
                     const text = firstUserMessage.parts[0].text || ''
                     // Extract the query from the formatted message
@@ -60,7 +59,7 @@ function ChatNode(props: NodeProps) {
     }, [props.id, setMessages])
 
     useEffect(() => {
-        attachMessageToNode(props.id, messages)
+        PlaygroundActions.attachMessageToNode(props.id, messages)
     }, [messages, props.id])
 
     const handleSendMessage = () => {
@@ -78,13 +77,13 @@ function ChatNode(props: NodeProps) {
         }
 
         nodeIds = Array.from(new Set(nodeIds.sort((a, b) => {
-            const chatA = getNodeChat(a)?.createdAt || 0
-            const chatB = getNodeChat(b)?.createdAt || 0
+            const chatA = PlaygroundActions.getNodeChat(a)?.createdAt || 0
+            const chatB = PlaygroundActions.getNodeChat(b)?.createdAt || 0
             return new Date(chatA).getTime() - new Date(chatB).getTime()
         })))
 
         for (const i in nodeIds) {
-            const chat = getNodeChat(nodeIds[i])
+            const chat = PlaygroundActions.getNodeChat(nodeIds[i])
             if (chat && Array.isArray(chat.messages)) {
                 console.log("Chat: ", chat.messages)
                 messageHistory.push(...chat.messages)
@@ -136,7 +135,7 @@ function ChatNode(props: NodeProps) {
             source = window.getSelection()?.toString() || ""
         }
 
-        addNewChatNode(props.id, source.trim())
+        PlaygroundActions.addNewChatNode(props.id, source.trim())
     }
 
     const handleAddAsSource = () => {
@@ -148,18 +147,18 @@ function ChatNode(props: NodeProps) {
         }
 
         if (source.trim()) {
-            addNewChatNode(props.id, source.trim())
+            PlaygroundActions.addNewChatNode(props.id, source.trim())
         } else {
             alert("Please select some text before adding source!")
         }
     }
 
     const handleNewChild = () => {
-        addNewChatNode(props.id)
+        PlaygroundActions.addNewChatNode(props.id)
     }
 
     const handleDelete = () => {
-        deleteNode(props.id)
+        PlaygroundActions.deleteNode(props.id)
     }
 
     return (
