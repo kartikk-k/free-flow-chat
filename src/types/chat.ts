@@ -7,6 +7,7 @@ export type NodeChat = {
   nodeId: string
   messages: any[]
   source?: string
+  model?: string
 }
 
 /**

@@ -163,7 +163,7 @@ export default function ChatPage() {
           onClick={() => router.push('/chats')}
           className="bg-black/10 gap-2 shadow-none w-8"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><title>arrow-left</title><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" stroke="currentColor"><line x1="2.75" y1="9" x2="15.25" y2="9"></line><polyline points="7 13.25 2.75 9 7 4.75"></polyline></g></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><title>arrow-left</title><g fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" stroke="currentColor"><line x1="2.75" y1="9" x2="15.25" y2="9"></line><polyline points="7 13.25 2.75 9 7 4.75"></polyline></g></svg>
           {/* All Chats */}
         </Button>
         <ChatTitleEditor

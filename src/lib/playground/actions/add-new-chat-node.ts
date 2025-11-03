@@ -1,6 +1,7 @@
-import { v4 as uuid } from 'uuid';
-import { NodeChat } from '@/types/chat';
+import { getBestDefaultModel } from '@/lib/models/config';
 import { usePlaygroundStore } from "@/store/Playground";
+import { NodeChat } from '@/types/chat';
+import { v4 as uuid } from 'uuid';
 
 
 export default function addNewChatNode(nodeId?: string, source?: string) {
@@ -41,7 +42,8 @@ export default function addNewChatNode(nodeId?: string, source?: string) {
             createdAt: new Date().toISOString(),
             messages: [],
             source: source,
-            nodeId: id
+            nodeId: id,
+            model: getBestDefaultModel(store.apiKeys)
         }
         store.setNodeChats([...store.nodeChats, newChat])
     }
