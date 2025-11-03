@@ -1,18 +1,17 @@
-import { getHistoricalNodeIds } from '@/helpers/playground/get-historical-node-ids';
-import { addNewChatNode, attachMessageToNode, getNodeChat, deleteNode } from '@/store/helpers';
-import { v4 as uuid } from 'uuid';
+import { getBestDefaultModel, getProviderFromModelId } from '@/lib/models/config';
+import { PlaygroundActions } from '@/lib/playground';
+import { extractResponseText } from '@/lib/utils/extract-response-text';
 import { usePlaygroundStore } from '@/store/Playground';
+import { NodeChat } from '@/types/chat';
 import { useChat } from '@ai-sdk/react';
 import { Handle, NodeProps, Position } from '@xyflow/react';
 import { DefaultChatTransport } from 'ai';
-import { useEffect, useState, startTransition, useMemo, useRef, useCallback } from 'react';
-import { NodeChat } from '../../../typings';
+import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import ChatSection from '../chat/ChatSection';
-import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from '../ui/context-menu';
 import { ModelSwitcher } from '../ModelSwitcher';
-import { getProviderFromModelId, getBestDefaultModel } from '@/lib/models/config';
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from '../ui/context-menu';
 import { CopyButton } from '../ui/copy-button';
-import { extractResponseText } from '@/lib/utils/extract-response-text';
 
 function ChatNode(props: NodeProps) {
 
@@ -27,9 +26,9 @@ function ChatNode(props: NodeProps) {
     
     // Initialize modelId from persisted state or best available model
     const [currentModelId, setCurrentModelId] = useState<string>(() => {
-        const chat = getNodeChat(props.id);
-        if (chat?.modelId) {
-            return chat.modelId;
+        const chat = PlaygroundActions.getNodeChat(props.id);
+        if (chat?.model) {
+            return chat.model;
         }
         // Get API keys from store state if available
         const store = usePlaygroundStore.getState();
@@ -91,17 +90,15 @@ function ChatNode(props: NodeProps) {
     }, [error, currentModelId, getApiKey])
 
     useEffect(() => {
-        const chat = getNodeChat(props.id)
-        if (!chat) return;
-        
-        // Use startTransition to batch state updates and avoid cascading renders
-        startTransition(() => {
+        const chat = PlaygroundActions.getNodeChat(props.id)
+        if (chat) {
+            setNodeChat(chat)
             // If chat exists with messages, set submitted to true and load messages
             if (chat.messages && chat.messages.length > 0) {
                 setSubmitted(true)
                 setMessages(chat.messages)
                 // Get the user's question from the first message
-                const firstUserMessage = chat.messages.find(msg => msg.role === 'user')
+                const firstUserMessage = chat.messages.find((msg: any) => msg.role === 'user')
                 if (firstUserMessage && firstUserMessage.parts && firstUserMessage.parts[0]) {
                     const text = firstUserMessage.parts[0].text || ''
                     // Extract the query from the formatted message
@@ -115,28 +112,28 @@ function ChatNode(props: NodeProps) {
             
             // Update nodeChat
             setNodeChat(chat)
-        })
+        }
     }, [props.id, setMessages])
 
     // Separate effect to sync modelId from chat when it changes externally
     // This only runs on mount or when the node ID changes
     useEffect(() => {
-        const chat = getNodeChat(props.id);
+        const chat = PlaygroundActions.getNodeChat(props.id);
         console.log('Syncing modelId from chat:', { 
             nodeId: props.id, 
-            chatModelId: chat?.modelId, 
+            chatModelId: chat?.model, 
             currentModelId,
             hasChat: !!chat
         });
         
-        if (chat?.modelId && chat.modelId !== currentModelId) {
+        if (chat?.model && chat.model !== currentModelId) {
             // Load saved model from chat
-            console.log('Loading saved model from chat:', chat.modelId);
+            console.log('Loading saved model from chat:', chat.model);
             modelManuallySetRef.current = false; // Reset flag when loading from chat
             startTransition(() => {
-                setCurrentModelId(chat.modelId!);
+                setCurrentModelId(chat.model!);
             });
-        } else if (!chat?.modelId && !modelManuallySetRef.current) {
+        } else if (!chat?.model && !modelManuallySetRef.current) {
             // Only set default if no saved model exists AND user hasn't manually set it
             const bestModel = getBestDefaultModel(apiKeys);
             if (bestModel !== currentModelId) {
@@ -150,20 +147,8 @@ function ChatNode(props: NodeProps) {
     }, [props.id]) // Only depend on props.id, not currentModelId or apiKeys
 
     useEffect(() => {
-        attachMessageToNode(props.id, messages)
-        // Also update model ID in chat
-        const chat = getNodeChat(props.id);
-        if (chat) {
-            const store = usePlaygroundStore.getState();
-            store.setNodeChats(
-                store.nodeChats.map(c => 
-                    c.nodeId === props.id 
-                        ? { ...c, modelId: currentModelId }
-                        : c
-                )
-            );
-        }
-    }, [messages, props.id, currentModelId])
+        PlaygroundActions.attachMessageToNode(props.id, messages)
+    }, [messages, props.id])
 
     const handleSendMessage = () => {
         const provider = getProviderFromModelId(currentModelId);
@@ -179,7 +164,7 @@ function ChatNode(props: NodeProps) {
                 startTransition(() => {
                     setCurrentModelId(bestModel);
                     // Update chat with new model
-                    const chat = getNodeChat(props.id);
+                    const chat = PlaygroundActions.getNodeChat(props.id);
                     if (chat) {
                         const store = usePlaygroundStore.getState();
                         store.setNodeChats(
@@ -205,20 +190,20 @@ function ChatNode(props: NodeProps) {
         const messageHistory: any[] = [];
         let nodeIds: string[] = []
 
-        const historicalNodeIds = getHistoricalNodeIds(props.id, usePlaygroundStore.getState().connectors);
+        const historicalNodeIds = PlaygroundActions.getHistoricalNodeIds(props.id, usePlaygroundStore.getState().connectors);
 
         for (const nodeId of historicalNodeIds.filter(i => i !== nodeChat?.nodeId)) {
             nodeIds.push(nodeId)
         }
 
         nodeIds = Array.from(new Set(nodeIds.sort((a, b) => {
-            const chatA = getNodeChat(a)?.createdAt || 0
-            const chatB = getNodeChat(b)?.createdAt || 0
+            const chatA = PlaygroundActions.getNodeChat(a)?.createdAt || 0
+            const chatB = PlaygroundActions.getNodeChat(b)?.createdAt || 0
             return new Date(chatA).getTime() - new Date(chatB).getTime()
         })))
 
         for (const i in nodeIds) {
-            const chat = getNodeChat(nodeIds[i])
+            const chat = PlaygroundActions.getNodeChat(nodeIds[i])
             if (chat && Array.isArray(chat.messages)) {
                 console.log("Chat: ", chat.messages)
                 messageHistory.push(...chat.messages)
@@ -258,7 +243,20 @@ function ChatNode(props: NodeProps) {
         }])
     }
 
-    // Removed unused handleClick and handleAdd functions
+    const handleClick = () => {
+
+    }
+
+    const handleAdd = () => {
+        let source = ""
+
+        // if component has selected text, set it as the source
+        if (window.getSelection()?.toString()) {
+            source = window.getSelection()?.toString() || ""
+        }
+
+        PlaygroundActions.addNewChatNode(props.id, source.trim())
+    }
 
     const handleAddAsSource = () => {
         let source = ""
@@ -269,18 +267,18 @@ function ChatNode(props: NodeProps) {
         }
 
         if (source.trim()) {
-            addNewChatNode(props.id, source.trim())
+            PlaygroundActions.addNewChatNode(props.id, source.trim())
         } else {
             alert("Please select some text before adding source!")
         }
     }
 
     const handleNewChild = () => {
-        addNewChatNode(props.id)
+        PlaygroundActions.addNewChatNode(props.id)
     }
 
     const handleDelete = () => {
-        deleteNode(props.id)
+        PlaygroundActions.deleteNode(props.id)
     }
 
     // Extract response text for copying
@@ -349,7 +347,7 @@ function ChatNode(props: NodeProps) {
                                             
                                             // Update chat with new model immediately - create if doesn't exist
                                             const store = usePlaygroundStore.getState();
-                                            const chat = getNodeChat(props.id);
+                                            const chat = PlaygroundActions.getNodeChat(props.id);
                                             
                                             if (chat) {
                                                 // Update existing chat
@@ -363,11 +361,11 @@ function ChatNode(props: NodeProps) {
                                             } else {
                                                 // Create new chat with the selected model
                                                 const newChat: NodeChat = {
-                                                    id: uuid(),
+                                                    id: uuidv4(),
                                                     nodeId: props.id,
                                                     messages: [],
                                                     createdAt: new Date().toISOString(),
-                                                    modelId: modelId,
+                                                    // provider
                                                 };
                                                 store.setNodeChats([...store.nodeChats, newChat]);
                                             }

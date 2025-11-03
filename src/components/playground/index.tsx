@@ -2,8 +2,7 @@
 
 import { ApiKeyDialog } from '@/components/ApiKeyDialog';
 import ChatNode from '@/components/nodes/ChatNode';
-import { getHistoricalNodeIds } from '@/helpers/playground/get-historical-node-ids';
-import handleConnectionEnd from '@/helpers/playground/handle-connection-end';
+import { getHistoricalNodeIds, handleConnectionEnd } from '@/lib/playground';
 import { usePlaygroundStore } from '@/store/Playground';
 import { addEdge, applyEdgeChanges, applyNodeChanges, Background, BackgroundVariant, Connection, Controls, EdgeChange, NodeChange, Panel, ReactFlow, ReactFlowProvider, SelectionMode, useReactFlow, useStoreApi } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';

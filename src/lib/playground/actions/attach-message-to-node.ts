@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
-import { NodeChat } from "../../../typings";
-import { usePlaygroundStore } from "../Playground";
+import { NodeChat } from '@/types/chat';
+import { usePlaygroundStore } from "@/store/Playground";
 
 
 export default function attachMessageToNode(nodeId: string, messages: any[]) {

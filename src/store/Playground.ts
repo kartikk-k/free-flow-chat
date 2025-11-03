@@ -1,6 +1,6 @@
 import { Edge, Node } from '@xyflow/react';
 import { create } from 'zustand';
-import { NodeChat } from '../../typings';
+import { NodeChat } from '@/types/chat';
 import { DEFAULT_MODELS } from '@/lib/models/config';
 import type { ProviderId } from '@/lib/models/config';
 
