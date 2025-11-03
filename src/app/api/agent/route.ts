@@ -26,19 +26,46 @@ export async function POST(req: NextRequest) {
     // const anthropic = createAnthropic({ apiKey: process.env.ANTROPIC_API_KEY! })
     const openai = createOpenAI({ apiKey: effectiveApiKey })
 
+    const COST = { // per million tokens in USD
+        input: 30,
+        output: 60,
+    }
+
     const result = streamText({
         // model: anthropic('claude-sonnet-4-20250514'
         model: openai('gpt-4'),
-        messages: convertToModelMessages(messages),        
+        messages: convertToModelMessages(messages),
 
         onError: (e => {
             console.log("❌❌❌❌ Error in agent: ", e)
         }),
 
         onFinish: (e => {
-            console.log("✅✅✅✅ Agent finished: ", e)
+            // console.log("✅✅✅✅ Agent finished: ", e)
             // finish reason
-            console.log("✅✅✅✅ Agent finished reason: ", e.finishReason)
+            // console.log("✅✅✅✅ Agent finished reason: ", e.finishReason)
+
+            console.log("--------------------------------")
+            console.log("USAGE DETAILS" + " - " + e.providerMetadata)
+            console.log("--------------------------------")
+            console.log("\n")
+
+            console.log("INPUT TOKENS: ", e.usage?.inputTokens)
+            console.log("OUTPUT TOKENS: ", e.usage?.outputTokens)
+            console.log("TOTAL TOKENS: ", e.usage?.totalTokens)
+            console.log("REASONING TOKENS: ", e.usage?.reasoningTokens)
+            console.log("CACHED INPUT TOKENS: ", e.usage?.cachedInputTokens)
+            console.log("\n")
+            console.log("--------------------------------")
+            console.log("COST DETAILS")
+            console.log("--------------------------------")
+            console.log("INPUT COST: ", e.usage?.inputTokens ? (e.usage?.inputTokens / 1000000) * COST.input : 0)
+            console.log("OUTPUT COST: ", e.usage?.outputTokens ? (e.usage?.outputTokens / 1000000) * COST.output : 0)
+            console.log("TOTAL COST: ", (e.usage!.inputTokens! / 1000000) * COST.input + (e.usage!.outputTokens! / 1000000) * COST.output)
+
+            console.log("\n")
+            console.log("--------------------------------")
+            console.log("--------------------------------")
         }),
 
         // system: `Answer in short and concise sentences.`,
