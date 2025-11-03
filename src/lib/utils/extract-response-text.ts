@@ -1,4 +1,4 @@
-import { UIMessage, UIDataTypes, UITools } from '@ai-sdk/react';
+import { UIMessage } from '@ai-sdk/react';
 
 /**
  * Extracts all assistant response text from messages
@@ -6,7 +6,7 @@ import { UIMessage, UIDataTypes, UITools } from '@ai-sdk/react';
  * @returns Combined text from all assistant messages
  */
 export function extractResponseText(
-  messages: UIMessage<unknown, UIDataTypes, UITools>[]
+  messages: any[]
 ): string {
   const textParts: string[] = [];
 
