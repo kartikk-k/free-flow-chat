@@ -3,7 +3,7 @@ import { createAnthropic } from '@ai-sdk/anthropic';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { convertToModelMessages, stepCountIs, streamText, UIMessage } from 'ai';
 import { NextRequest } from 'next/server';
-import { getModelConfig, getProviderFromModelId, DEFAULT_MODELS, getBestDefaultModel, getAllModels } from '@/lib/models/config';
+import { getModelConfig, getProviderFromModelId, DEFAULT_MODELS, getBestDefaultModel } from '@/lib/models/config';
 import type { ProviderId } from '@/lib/models/config';
 
 export const maxDuration = 300;
@@ -66,30 +66,15 @@ export async function POST(req: NextRequest) {
         // Determine which model to use
         // Only use default if no modelId was explicitly provided
         let targetModelId = modelId;
-        
-        console.log('API Route received:', { 
-            modelId, 
-            targetModelId, 
-            trimmed: modelId?.trim(),
-            isEmpty: !targetModelId || targetModelId.trim() === '' 
-        });
-        
+
         // If no modelId provided, use best available based on API keys
         if (!targetModelId || targetModelId.trim() === '') {
             targetModelId = getBestDefaultModel(apiKeys);
-            console.log('Using default model:', targetModelId);
         }
 
         // Validate model exists
         let modelConfig = getModelConfig(targetModelId);
         if (!modelConfig) {
-            // Log for debugging
-            console.log('Model not found:', { 
-                requestedModelId: modelId, 
-                targetModelId, 
-                availableModels: getAllModels().map(m => m.id) 
-            });
-            
             // If model was explicitly provided but not found, return error
             if (modelId && modelId.trim() !== '') {
                 return new Response(
@@ -129,12 +114,7 @@ export async function POST(req: NextRequest) {
             messages: convertToModelMessages(messages),
 
             onError: (e) => {
-                console.log("❌❌❌❌ Error in agent: ", e);
-            },
-
-            onFinish: (e) => {
-                console.log("✅✅✅✅ Agent finished: ", e);
-                console.log("✅✅✅✅ Agent finished reason: ", e.finishReason);
+                console.error("Error in agent: ", e);
             },
 
             stopWhen: stepCountIs(15),
