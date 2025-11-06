@@ -157,6 +157,10 @@ function ChatNode(props: NodeProps) {
         PlaygroundActions.addNewChatNode(props.id)
     }
 
+    const handleNewWebpage = () => {
+        PlaygroundActions.addNewWebpageNode(props.id)
+    }
+
     const handleDelete = () => {
         PlaygroundActions.deleteNode(props.id)
     }
@@ -264,6 +268,10 @@ function ChatNode(props: NodeProps) {
                 <ContextMenuItem onClick={handleNewChild}>
                     <svg xmlns="http://www.w3.org/2000/svg" className='text-white' width="18" height="18" viewBox="0 0 18 18"><title>connection-2</title><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" stroke="currentColor"><path d="m5.75,5.25h1.25c1.1046,0,2,.8954,2,2v3.25c0,1.1046.8954,2,2,2h1.25"></path><circle cx="3.75" cy="5.25" r="2"></circle><circle cx="14.25" cy="12.75" r="2"></circle></g></svg>
                     New child
+                </ContextMenuItem>
+                <ContextMenuItem onClick={handleNewWebpage}>
+                    <svg xmlns="http://www.w3.org/2000/svg" className='text-white' width="18" height="18" viewBox="0 0 18 18" fill="none"><title>globe-2</title><g stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" stroke="currentColor"><circle cx="9" cy="9" r="7.25"></circle><path d="M2.32593 11.7498H15.6741"></path><path d="M2.32593 6.25H15.6741"></path><path d="M9 1.75C7.20507 3.82733 6.1875 6.45892 6.1875 9.25C6.1875 12.0411 7.20507 14.6727 9 16.75"></path><path d="M9 1.75C10.7949 3.82733 11.8125 6.45892 11.8125 9.25C11.8125 12.0411 10.7949 14.6727 9 16.75"></path></g></svg>
+                    New webpage
                 </ContextMenuItem>
                 {/* <ContextMenuItem>Team</ContextMenuItem> */}
                 {/* <ContextMenuSeparator className='opacity-40' /> */}

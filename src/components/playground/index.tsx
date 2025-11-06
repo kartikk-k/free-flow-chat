@@ -2,6 +2,7 @@
 
 import { ApiKeyDialog } from '@/components/ApiKeyDialog';
 import ChatNode from '@/components/nodes/ChatNode';
+import WebpageNode from '@/components/nodes/WebpageNode';
 import { getHistoricalNodeIds, handleConnectionEnd } from '@/lib/playground';
 import { usePlaygroundStore } from '@/store/Playground';
 import { addEdge, applyEdgeChanges, applyNodeChanges, Background, BackgroundVariant, Connection, Controls, EdgeChange, NodeChange, Panel, ReactFlow, ReactFlowProvider, SelectionMode, useReactFlow, useStoreApi } from '@xyflow/react';
@@ -15,6 +16,7 @@ const initialNodes = [
 
 const nodeTypes = {
     chatNode: ChatNode,
+    webpageNode: WebpageNode,
 };
 
 
