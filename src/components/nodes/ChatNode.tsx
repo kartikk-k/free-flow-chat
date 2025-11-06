@@ -169,7 +169,7 @@ function ChatNode(props: NodeProps) {
         <ContextMenu>
             <ContextMenuTrigger>
 
-                <div className={`flex group rounded-3xl ${selectedNodeId === props.id ? 'outline- 2 outline-blue-500' : ''} ${selectedNodeHistoricalNodeIds?.includes(props.id) ? 'ring-5 ring-[#88EAC9] ring-offset-1' : ''}`}>
+                <div className={`flex group rounded-3xl ${selectedNodeId === props.id ? '' : ''} ${selectedNodeHistoricalNodeIds?.includes(props.id) ? 'ring-5 ring-[#88EAC9] ring-offset-1' : ''}`}>
 
                     <div className={`p-4 bg-white rounded-3xl min-w-2xl ${selectedNodeHistoricalNodeIds?.includes(props.id) ? 'outline-transparent' : 'outline-black/15'} max-w-2xl relative outline-2 hover:shadow-2xl duration-150 cursor-default`}>
                         {/* selected context */}

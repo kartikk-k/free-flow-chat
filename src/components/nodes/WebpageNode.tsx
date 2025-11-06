@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { NodeChat } from '@/types/chat';
 import { Response } from '../ai-elements/response';
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from '../ui/context-menu';
+import Spinner from '../ui/spinner';
 
 function WebpageNode(props: NodeProps) {
 
@@ -130,18 +131,9 @@ function WebpageNode(props: NodeProps) {
     return (
         <ContextMenu>
             <ContextMenuTrigger>
-
-                <div className={`flex group rounded-3xl ${selectedNodeId === props.id ? 'outline-2 outline-blue-500' : ''} ${selectedNodeHistoricalNodeIds?.includes(props.id) ? 'ring-5 ring-[#88EAC9] ring-offset-1' : ''}`}>
+                <div className={`flex group rounded-3xl ${selectedNodeId === props.id ? '' : ''} ${selectedNodeHistoricalNodeIds?.includes(props.id) ? 'ring-5 ring-[#88EAC9] ring-offset-1' : ''}`}>
 
                     <div className={`p-4 bg-white rounded-3xl min-w-2xl ${selectedNodeHistoricalNodeIds?.includes(props.id) ? 'outline-transparent' : 'outline-black/15'} max-w-2xl relative outline-2 hover:shadow-2xl duration-150 cursor-default`}>
-                        {/* selected context */}
-                        {nodeChat?.source && (
-                            <div className='bg-neutral-200/50 px-4 py-3 rounded-[14px] mb-4 relative left-[-8px] top-[-8px] w-[calc(100%+16px)] flex items-center gap-2 text-sm' >
-                                <svg xmlns="http://www.w3.org/2000/svg" className='opacity-50 shrink-0' width="18" height="18" viewBox="0 0 18 18"><title>merge</title><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" stroke="currentColor"><path d="M9.5,9l-2.172-3.752c-.358-.618-1.017-.998-1.731-.998H2.75"></path><path d="M9.5,9l-2.172,3.752c-.358,.618-1.017,.998-1.731,.998H2.75"></path><line x1="16.25" y1="9" x2="9.5" y2="9"></line><polyline points="13.5 6.25 16.25 9 13.5 11.75"></polyline></g></svg>
-                                <p className='line-clamp-3'>{nodeChat.source}</p>
-                            </div>
-                        )}
-
                         <div className='flex flex-col gap-1'>
 
                             <div className='flex items-center gap-2'>
@@ -153,7 +145,7 @@ function WebpageNode(props: NodeProps) {
                                     <button
                                         className='px-2 h-9 pr-3 rounded-lg border border-black/15 flex items-center gap-1'
                                     >
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none"><title>globe-2</title><g stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" stroke="currentColor"><circle cx="9" cy="9" r="7.25"></circle><path d="M2.32593 11.7498H15.6741"></path><path d="M2.32593 6.25H15.6741"></path><path d="M9 1.75C7.20507 3.82733 6.1875 6.45892 6.1875 9.25C6.1875 12.0411 7.20507 14.6727 9 16.75"></path><path d="M9 1.75C10.7949 3.82733 11.8125 6.45892 11.8125 9.25C11.8125 12.0411 10.7949 14.6727 9 16.75"></path></g></svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><title>globe-2</title><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" stroke="currentColor"><ellipse cx="9" cy="9" rx="3" ry="7.25"></ellipse><line x1="1.75" y1="9" x2="16.25" y2="9"></line><circle cx="9" cy="9" r="7.25"></circle></g></svg>
                                         Webpage
                                     </button>
                                 </div>
@@ -169,64 +161,47 @@ function WebpageNode(props: NodeProps) {
                                 </p>
                             )}
 
-                            {!submitted ? (
-                                <div className='ml-5 p-3 flex flex-col gap-3'>
-                                    <input
-                                        type="text"
-                                        className='resize-none bg-neutral-100 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
-                                        placeholder='Enter webpage URL...'
-                                        onKeyDown={e => e.key === 'Enter' && handleFetchWebpage()}
-                                        value={url}
-                                        onChange={e => setUrl(e.target.value)}
-                                    />
+                            <div className='ml-5 p-3 flex flex-col gap-3'>
+                                <input
+                                    type="text"
+                                    className={`resize-none py-2 focus:outline-none truncate font-medium ${content ? 'text-blue-600' : ''} disabled:cursor-pointer'`}
+                                    autoFocus
+                                    placeholder='Enter webpage URL...'
+                                    onKeyDown={e => e.key === 'Enter' && handleFetchWebpage()}
+                                    value={url}
+                                    disabled={submitted || loading}
+                                    onChange={e => setUrl(e.target.value)}
+                                />
+                                {!content && (
                                     <button
                                         onClick={handleFetchWebpage}
+                                        disabled={submitted || loading}
                                         className='px-4 py-2 bg-neutral-900 text-white rounded-lg hover:bg-neutral-800 transition-colors'
                                     >
-                                        Fetch Webpage
+                                        {loading ? "Fetching..." : "Fetch Webpage"}
                                     </button>
-                                </div>
-                            ) : (
-                                <div className='ml-5 p-3 flex flex-col gap-7 select-text'>
-                                    {/* URL display */}
-                                    {metadata?.title && (
-                                        <div className='flex flex-col gap-1'>
-                                            <p className='font-semibold text-lg'>{metadata.title}</p>
-                                            <a
-                                                href={url}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className='text-sm text-blue-600 hover:underline break-all'
-                                            >
-                                                {url}
-                                            </a>
-                                        </div>
-                                    )}
+                                )}
+                            </div>
 
-                                    {!metadata?.title && (
-                                        <a
-                                            href={url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className='font-medium text-blue-600 hover:underline break-all cursor-pointer'
-                                        >
-                                            {url}
-                                        </a>
-                                    )}
-
-                                    {/* content */}
-                                    <div className='text-foreground/70 font-medium space-y-3 relative cursor-text'>
-                                        {loading ? (
-                                            <div className='flex items-center gap-2'>
-                                                <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900'></div>
-                                                <span>Fetching webpage content...</span>
-                                            </div>
-                                        ) : (
-                                            <Response>{content}</Response>
-                                        )}
+                            <div className='ml-5 p-3 pt-0 flex flex-col gap-7 select-text'>
+                                {metadata?.title && (
+                                    <div className='flex flex-col gap-1'>
+                                        <p className='font-semibold text-lg'>{metadata?.title}</p>
                                     </div>
+                                )}
+                                {/* content */}
+                                <div className='text-foreground/70 font-medium space-y-3 relative cursor-text'>
+                                    {loading ? (
+                                        <div className='flex items-center gap-2'>
+                                            <Spinner />
+                                            <span>Fetching webpage content...</span>
+                                        </div>
+                                    ) : (
+                                        <Response>{content}</Response>
+                                    )}
                                 </div>
-                            )}
+                            </div>
+
                         </div>
 
                         <>
