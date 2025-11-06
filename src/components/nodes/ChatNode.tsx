@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { NodeChat } from '@/types/chat';
 import ChatSection from '../chat/ChatSection';
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from '../ui/context-menu';
+import { cn } from '@/lib/utils';
 
 
 function ChatNode(props: NodeProps) {
@@ -14,6 +15,7 @@ function ChatNode(props: NodeProps) {
     const [submitted, setSubmitted] = useState(false);
     const [question, setQuestion] = useState('');
     const [nodeChat, setNodeChat] = useState<NodeChat | null>(null);
+    const [showMore, setShowMore] = useState(false);
 
     const { selectedNodeId, selectedNodeHistoricalNodeIds, apiKey } = usePlaygroundStore();
 
@@ -230,7 +232,7 @@ function ChatNode(props: NodeProps) {
                                     </p>
 
                                     {/* response */}
-                                    <div className='text-foreground/70 font-medium space-y-3 relative cursor-text'>
+                                    <div className={cn('text-foreground/70 font-medium space-y-3 relative cursor-text', showMore ? 'h-auto' : 'max-h-[600px] overflow-auto node-scrollbar')}>
 
                                         <ChatSection
                                             messages={messages}
@@ -238,6 +240,16 @@ function ChatNode(props: NodeProps) {
                                         />
 
                                     </div>
+
+                                    <div className='flex justify-center pt-3 border-t'>
+                                        <button
+                                            className='px-2 h-9 pr-3 rounded-lg border border-black/15 flex items-center gap-1'
+                                            onClick={() => setShowMore(!showMore)}
+                                        >
+                                            {showMore ? 'Show Less' : 'Show More'}
+                                        </button>
+                                    </div>
+
                                 </div>
 
                             )}
@@ -250,12 +262,7 @@ function ChatNode(props: NodeProps) {
                             <Handle type="source" position={Position.Bottom} id={'a4'} />
                         </>
                     </div>
-
-                    {/* <div className='hidden items-center justify-center px-2 group-hover:flex'>
-                        <button onClick={handleAdd} className='flex w-8 h-12 bg-neutral-900 text-white items-center justify-center rounded-lg'>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><title>plus</title><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" stroke="currentColor"><line x1="9" y1="3.25" x2="9" y2="14.75"></line><line x1="3.25" y1="9" x2="14.75" y2="9"></line></g></svg>
-                        </button>
-                    </div> */}
+                    
                 </div>
             </ContextMenuTrigger>
             <ContextMenuContent>

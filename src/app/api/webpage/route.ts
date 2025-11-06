@@ -54,7 +54,6 @@ export async function POST(req: NextRequest) {
         });
 
     } catch (error: any) {
-        console.error('Error fetching webpage:', error);
         return NextResponse.json(
             { error: error.message || 'Failed to fetch webpage content' },
             { status: 500 }

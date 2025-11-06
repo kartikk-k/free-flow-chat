@@ -32,19 +32,13 @@ export async function POST(req: NextRequest) {
         messages: convertToModelMessages(messages),        
 
         onError: (e => {
-            console.log("❌❌❌❌ Error in agent: ", e)
         }),
 
         onFinish: (e => {
-            console.log("✅✅✅✅ Agent finished: ", e)
-            // finish reason
-            console.log("✅✅✅✅ Agent finished reason: ", e.finishReason)
         }),
 
-        // system: `Answer in short and concise sentences.`,
-
-        stopWhen: stepCountIs(15),
-        tools: {}
+        // stopWhen: stepCountIs(15),
+        // tools: {}
 
     });
 

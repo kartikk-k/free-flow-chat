@@ -6,6 +6,7 @@ import { NodeChat } from '@/types/chat';
 import { Response } from '../ai-elements/response';
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from '../ui/context-menu';
 import Spinner from '../ui/spinner';
+import { cn } from '@/lib/utils';
 
 function WebpageNode(props: NodeProps) {
 
@@ -16,6 +17,7 @@ function WebpageNode(props: NodeProps) {
     const [error, setError] = useState<string | null>(null);
     const [nodeChat, setNodeChat] = useState<NodeChat | null>(null);
     const [metadata, setMetadata] = useState<{ title?: string; description?: string } | null>(null);
+    const [showMore, setShowMore] = useState(false);
 
     const { selectedNodeId, selectedNodeHistoricalNodeIds } = usePlaygroundStore();
 
@@ -183,7 +185,7 @@ function WebpageNode(props: NodeProps) {
                                 )}
                             </div>
 
-                            <div className='ml-5 p-3 pt-0 flex flex-col gap-7 select-text'>
+                            <div className={cn('ml-5 p-3 pt-0 flex flex-col gap-7 select-text', content ? (showMore ? 'h-auto' : 'h-[600px] overflow-auto node-scrollbar') : null)}>
                                 {metadata?.title && (
                                     <div className='flex flex-col gap-1'>
                                         <p className='font-semibold text-lg'>{metadata?.title}</p>
@@ -201,6 +203,17 @@ function WebpageNode(props: NodeProps) {
                                     )}
                                 </div>
                             </div>
+
+                            {content && (
+                                <div className='flex justify-center pt-3 border-t'>
+                                    <button
+                                        className='px-2 h-9 pr-3 rounded-lg border border-black/15 flex items-center gap-1'
+                                        onClick={() => setShowMore(!showMore)}
+                                    >
+                                        {showMore ? 'Show Less' : 'Show More'}
+                                    </button>
+                                </div>
+                            )}
 
                         </div>
 
