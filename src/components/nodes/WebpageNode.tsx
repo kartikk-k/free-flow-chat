@@ -16,7 +16,7 @@ function WebpageNode(props: NodeProps) {
     const [nodeChat, setNodeChat] = useState<NodeChat | null>(null);
     const [metadata, setMetadata] = useState<{ title?: string; description?: string } | null>(null);
 
-    const { selectedNodeId, selectedNodeHistoricalNodeIds, apiKey } = usePlaygroundStore();
+    const { selectedNodeId, selectedNodeHistoricalNodeIds } = usePlaygroundStore();
 
     useEffect(() => {
         const chat = PlaygroundActions.getNodeChat(props.id)
@@ -57,17 +57,12 @@ function WebpageNode(props: NodeProps) {
             return;
         }
 
-        if (!apiKey?.trim()) {
-            alert("Please add API key from top right!")
-            return;
-        }
-
         setSubmitted(true);
         setLoading(true);
         setError(null);
 
         try {
-            const response = await fetch(`/api/webpage?apiKey=${encodeURIComponent(apiKey)}`, {
+            const response = await fetch('/api/webpage', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

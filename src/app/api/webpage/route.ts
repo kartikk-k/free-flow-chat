@@ -25,13 +25,13 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Get Firecrawl API key from query parameter
-        const firecrawlApiKey = req.nextUrl.searchParams.get('apiKey');
+        // Get Firecrawl API key from environment variable
+        const firecrawlApiKey = process.env.FIRECRAWL_API_KEY;
 
         if (!firecrawlApiKey) {
             return NextResponse.json(
-                { error: 'Firecrawl API key is required. Please add your API key in settings.' },
-                { status: 401 }
+                { error: 'Firecrawl API key is not configured. Please add FIRECRAWL_API_KEY to your environment variables.' },
+                { status: 500 }
             );
         }
 
