@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { NodeChat } from '@/types/chat';
 import ChatSection from '../chat/ChatSection';
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from '../ui/context-menu';
+import { cn } from '@/lib/utils';
 
 
 function ChatNode(props: NodeProps) {
@@ -14,6 +15,7 @@ function ChatNode(props: NodeProps) {
     const [submitted, setSubmitted] = useState(false);
     const [question, setQuestion] = useState('');
     const [nodeChat, setNodeChat] = useState<NodeChat | null>(null);
+    const [showMore, setShowMore] = useState(false);
 
     const { selectedNodeId, selectedNodeHistoricalNodeIds, apiKey } = usePlaygroundStore();
 
@@ -157,6 +159,10 @@ function ChatNode(props: NodeProps) {
         PlaygroundActions.addNewChatNode(props.id)
     }
 
+    const handleNewWebpage = () => {
+        PlaygroundActions.addNewWebpageNode(props.id)
+    }
+
     const handleDelete = () => {
         PlaygroundActions.deleteNode(props.id)
     }
@@ -165,7 +171,7 @@ function ChatNode(props: NodeProps) {
         <ContextMenu>
             <ContextMenuTrigger>
 
-                <div className={`flex group rounded-3xl ${selectedNodeId === props.id ? 'outline- 2 outline-blue-500' : ''} ${selectedNodeHistoricalNodeIds?.includes(props.id) ? 'ring-5 ring-[#88EAC9] ring-offset-1' : ''}`}>
+                <div className={`flex group rounded-3xl ${selectedNodeId === props.id ? '' : ''} ${selectedNodeHistoricalNodeIds?.includes(props.id) ? 'ring-5 ring-[#88EAC9] ring-offset-1' : ''}`}>
 
                     <div className={`p-4 bg-white rounded-3xl min-w-2xl ${selectedNodeHistoricalNodeIds?.includes(props.id) ? 'outline-transparent' : 'outline-black/15'} max-w-2xl relative outline-2 hover:shadow-2xl duration-150 cursor-default`}>
                         {/* selected context */}
@@ -226,7 +232,7 @@ function ChatNode(props: NodeProps) {
                                     </p>
 
                                     {/* response */}
-                                    <div className='text-foreground/70 font-medium space-y-3 relative cursor-text'>
+                                    <div className={cn('text-foreground/70 font-medium space-y-3 relative cursor-text', showMore ? 'h-auto' : 'max-h-[600px] overflow-auto node-scrollbar')}>
 
                                         <ChatSection
                                             messages={messages}
@@ -234,6 +240,16 @@ function ChatNode(props: NodeProps) {
                                         />
 
                                     </div>
+
+                                    <div className='flex justify-center pt-3 border-t'>
+                                        <button
+                                            className='px-2 h-9 pr-3 rounded-lg border border-black/15 flex items-center gap-1'
+                                            onClick={() => setShowMore(!showMore)}
+                                        >
+                                            {showMore ? 'Show Less' : 'Show More'}
+                                        </button>
+                                    </div>
+
                                 </div>
 
                             )}
@@ -246,12 +262,7 @@ function ChatNode(props: NodeProps) {
                             <Handle type="source" position={Position.Bottom} id={'a4'} />
                         </>
                     </div>
-
-                    {/* <div className='hidden items-center justify-center px-2 group-hover:flex'>
-                        <button onClick={handleAdd} className='flex w-8 h-12 bg-neutral-900 text-white items-center justify-center rounded-lg'>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><title>plus</title><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" stroke="currentColor"><line x1="9" y1="3.25" x2="9" y2="14.75"></line><line x1="3.25" y1="9" x2="14.75" y2="9"></line></g></svg>
-                        </button>
-                    </div> */}
+                    
                 </div>
             </ContextMenuTrigger>
             <ContextMenuContent>
@@ -264,6 +275,10 @@ function ChatNode(props: NodeProps) {
                 <ContextMenuItem onClick={handleNewChild}>
                     <svg xmlns="http://www.w3.org/2000/svg" className='text-white' width="18" height="18" viewBox="0 0 18 18"><title>connection-2</title><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" stroke="currentColor"><path d="m5.75,5.25h1.25c1.1046,0,2,.8954,2,2v3.25c0,1.1046.8954,2,2,2h1.25"></path><circle cx="3.75" cy="5.25" r="2"></circle><circle cx="14.25" cy="12.75" r="2"></circle></g></svg>
                     New child
+                </ContextMenuItem>
+                <ContextMenuItem onClick={handleNewWebpage}>
+                    <svg xmlns="http://www.w3.org/2000/svg" className='text-white' width="18" height="18" viewBox="0 0 18 18" fill="none"><title>globe-2</title><g stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" stroke="currentColor"><circle cx="9" cy="9" r="7.25"></circle><path d="M2.32593 11.7498H15.6741"></path><path d="M2.32593 6.25H15.6741"></path><path d="M9 1.75C7.20507 3.82733 6.1875 6.45892 6.1875 9.25C6.1875 12.0411 7.20507 14.6727 9 16.75"></path><path d="M9 1.75C10.7949 3.82733 11.8125 6.45892 11.8125 9.25C11.8125 12.0411 10.7949 14.6727 9 16.75"></path></g></svg>
+                    New webpage
                 </ContextMenuItem>
                 {/* <ContextMenuItem>Team</ContextMenuItem> */}
                 {/* <ContextMenuSeparator className='opacity-40' /> */}
