@@ -135,17 +135,17 @@ function WebpageNode(props: NodeProps) {
             <ContextMenuTrigger>
                 <div className={`flex group rounded-3xl ${selectedNodeId === props.id ? '' : ''} ${selectedNodeHistoricalNodeIds?.includes(props.id) ? 'ring-5 ring-[#88EAC9] ring-offset-1' : ''}`}>
 
-                    <div className={`p-4 bg-white rounded-3xl min-w-2xl ${selectedNodeHistoricalNodeIds?.includes(props.id) ? 'outline-transparent' : 'outline-black/15'} max-w-2xl relative outline-2 hover:shadow-2xl duration-150 cursor-default`}>
+                    <div className={`p-4 bg-card rounded-3xl min-w-2xl ${selectedNodeHistoricalNodeIds?.includes(props.id) ? 'outline-transparent' : 'outline-outline-subtle'} max-w-2xl relative outline-2 hover:shadow-2xl duration-150 cursor-default`}>
                         <div className='flex flex-col gap-1'>
 
                             <div className='flex items-center gap-2'>
-                                <button className='drag-handle__WebpageNode hover:bg-neutral-200 w-6 h-8 flex items-center justify-center rounded-md active:cursor-grabbing hover:cursor-grab'>
+                                <button className='drag-handle__WebpageNode hover:bg-muted w-6 h-8 flex items-center justify-center rounded-md active:cursor-grabbing hover:cursor-grab'>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><title>grip-dots-vertical</title><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" stroke="currentColor"><circle cx="6.75" cy="9" r=".5" fill="currentColor"></circle><circle cx="6.75" cy="3.75" r=".5" fill="currentColor"></circle><circle cx="6.75" cy="14.25" r=".5" fill="currentColor"></circle><circle cx="11.25" cy="9" r=".5" fill="currentColor"></circle><circle cx="11.25" cy="3.75" r=".5" fill="currentColor"></circle><circle cx="11.25" cy="14.25" r=".5" fill="currentColor"></circle></g></svg>
                                 </button>
 
                                 <div className='font-medium flex-1'>
                                     <button
-                                        className='px-2 h-9 pr-3 rounded-lg border border-black/15 flex items-center gap-1'
+                                        className='px-2 h-9 pr-3 rounded-lg border border-border flex items-center gap-1'
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><title>globe-2</title><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" stroke="currentColor"><ellipse cx="9" cy="9" rx="3" ry="7.25"></ellipse><line x1="1.75" y1="9" x2="16.25" y2="9"></line><circle cx="9" cy="9" r="7.25"></circle></g></svg>
                                         Webpage
@@ -166,7 +166,7 @@ function WebpageNode(props: NodeProps) {
                             <div className='ml-5 p-3 flex flex-col gap-3'>
                                 <input
                                     type="text"
-                                    className={`resize-none py-2 focus:outline-none truncate font-medium ${content ? 'text-blue-600' : ''} disabled:cursor-pointer'`}
+                                    className={`resize-none py-2 bg-transparent focus:outline-none truncate font-medium ${content ? 'text-blue-600' : ''} disabled:cursor-pointer dark:text-white`}
                                     autoFocus
                                     placeholder='Enter webpage URL...'
                                     onKeyDown={e => e.key === 'Enter' && handleFetchWebpage()}

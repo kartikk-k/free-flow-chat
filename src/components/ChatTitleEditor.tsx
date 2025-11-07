@@ -64,7 +64,7 @@ export function ChatTitleEditor({ chatId, initialTitle, onTitleUpdate }: ChatTit
 
   if (isEditing) {
     return (
-      <div className="flex items-center gap-2 bg-white rounded-lg border border-neutral-200 p-1.5 pl-2">
+      <div className="flex items-center gap-2 bg-card rounded-lg border border-border p-1.5 pl-2">
         <Input
           value={tempTitle}
           onChange={(e) => setTempTitle(e.target.value)}
@@ -78,7 +78,7 @@ export function ChatTitleEditor({ chatId, initialTitle, onTitleUpdate }: ChatTit
           variant="ghost"
           onClick={handleSave}
           disabled={saving}
-          className="h-7 w-7 text-green-600 hover:text-green-700 hover:bg-green-50"
+          className="h-7 w-7 text-success hover:text-success-hover hover:bg-success-bg"
         >
           <Check className="h-4 w-4" />
         </Button>
@@ -87,7 +87,7 @@ export function ChatTitleEditor({ chatId, initialTitle, onTitleUpdate }: ChatTit
           variant="ghost"
           onClick={handleCancel}
           disabled={saving}
-          className="h-7 w-7 text-red-600 hover:text-red-700 hover:bg-red-50"
+          className="h-7 w-7 text-error hover:text-error-hover hover:bg-error-bg"
         >
           <X className="h-4 w-4" />
         </Button>
@@ -97,7 +97,7 @@ export function ChatTitleEditor({ chatId, initialTitle, onTitleUpdate }: ChatTit
 
   return (
     <div className="flex items-center gap-2 group">
-      <span className="text-sm font-medium text-neutral-700">{title}</span>
+      <span className="text-sm font-medium text-foreground">{title}</span>
       <Button
         size="icon"
         variant="ghost"

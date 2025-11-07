@@ -135,7 +135,7 @@ export default function ChatPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-neutral-900"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-foreground"></div>
       </div>
     );
   }
@@ -143,8 +143,8 @@ export default function ChatPage() {
   if (chatNotFound) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-        <h1 className="text-2xl font-bold text-neutral-900">Chat Not Found</h1>
-        <p className="text-neutral-600">The chat you're looking for doesn't exist.</p>
+        <h1 className="text-2xl font-bold text-foreground">Chat Not Found</h1>
+        <p className="text-muted-foreground">The chat you're looking for doesn't exist.</p>
         <Button onClick={() => router.push('/chats')}>
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Chats
@@ -161,7 +161,7 @@ export default function ChatPage() {
           variant="outline"
           size="sm"
           onClick={() => router.push('/chats')}
-          className="bg-black/10 gap-2 shadow-none w-8"
+          className="bg-button-bg-subtle hover:bg-button-bg-subtle-hover gap-2 shadow-none w-8"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18"><title>arrow-left</title><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" stroke="currentColor"><line x1="2.75" y1="9" x2="15.25" y2="9"></line><polyline points="7 13.25 2.75 9 7 4.75"></polyline></g></svg>
           {/* All Chats */}

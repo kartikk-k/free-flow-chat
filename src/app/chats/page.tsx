@@ -6,6 +6,7 @@ import { Plus, MessageSquare, Trash2, Clock } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { getAllChats, deleteChat, type ChatRecord } from '@/lib/db/indexeddb';
 import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import Link from 'next/link';
 
 function ChatsPage() {
@@ -74,16 +75,17 @@ function ChatsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 p-8">
+    <div className="min-h-screen bg-background p-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className='flex'>
           <div className="mb-8 flex-1">
-            <h1 className="font-medium text-black">Your Chats</h1>
-            <p className="text-black/60 text-[13px]">Manage and access your conversation history</p>
+            <h1 className="font-medium text-foreground">Your Chats</h1>
+            <p className="text-muted-foreground text-[13px]">Manage and access your conversation history</p>
           </div>
 
           <div className='flex items-center gap-2'>
+            <ThemeToggle />
             <Button
               onClick={handleNewChat}
               className="text-sm bg bg-[#88EAC9] text-[#2D3432] px-3 pr-5 rounded-full hover:brightness-90 font-semibold"
@@ -102,15 +104,15 @@ function ChatsPage() {
         {/* Chat List */}
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-900"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-foreground"></div>
           </div>
         ) : chats.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-3xl border border-black/10 flex flex-col items-center justify-center">
-            <div className='text-black/50'>
+          <div className="text-center py-12 bg-card rounded-3xl border border-border flex flex-col items-center justify-center">
+            <div className='text-muted-foreground'>
               <svg xmlns="http://www.w3.org/2000/svg" className='size-8' width="18" height="18" viewBox="0 0 18 18"><title>msg-content</title><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" stroke="currentColor"><path d="M9,1.75C4.996,1.75,1.75,4.996,1.75,9c0,1.319,.358,2.552,.973,3.617,.43,.806-.053,2.712-.973,3.633,1.25,.068,2.897-.497,3.633-.973,.489,.282,1.264,.656,2.279,.848,.433,.082,.881,.125,1.338,.125,4.004,0,7.25-3.246,7.25-7.25S13.004,1.75,9,1.75Z"></path><line x1="5.75" y1="7.25" x2="12.25" y2="7.25"></line><line x1="5.75" y1="10.75" x2="10.25" y2="10.75"></line></g></svg>
             </div>
-            <h3 className="font-medium text-black mt-4">No chats yet</h3>
-            <p className="text-black/50 text-sm">Create your first chat to get started</p>
+            <h3 className="font-medium text-foreground mt-4">No chats yet</h3>
+            <p className="text-muted-foreground text-sm">Create your first chat to get started</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -118,14 +120,14 @@ function ChatsPage() {
               <div
                 key={chat.id}
                 onClick={() => handleChatClick(chat.id)}
-                className="group bg-white rounded-2xl border border-black/10 p-4 transition-shadow cursor-pointer hover:shadow-[inset_0px_-1px_1px_-0.5px_rgba(51,51,51,0.06),0px_0px_0px_1px_rgba(51,51,51,0.04),0px_1px_1px_0.5px_rgba(51,51,51,0.04),0px_3px_3px_-1.5px_rgba(51,51,51,0.02),0px_6px_6px_-3px_rgba(51,51,51,0.04),0px_12px_12px_-6px_rgba(51,51,51,0.04),0px_24px_24px_-12px_rgba(51,51,51,0.04),0px_48px_48px_-24px_rgba(51,51,51,0.04)]"
+                className="group bg-card rounded-2xl border border-border p-4 transition-shadow cursor-pointer hover:shadow-lg"
               >
                 <div className="flex items-start text-sm justify-between">
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-neutral-900 mb-1 truncate">
+                    <h3 className="font-medium text-foreground mb-1 truncate">
                       {chat.metadata.title}
                     </h3>
-                    <div className="flex items-center gap-4 text-xs text-neutral-500">
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <span>Updated {formatDate(chat.metadata.updatedAt)}</span>
                       </div>
@@ -137,7 +139,7 @@ function ChatsPage() {
                     size="icon"
                     onClick={(e) => handleDeleteChat(chat.id, e)}
                     disabled={deleting === chat.id}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity text-neutral-500 hover:text-red-500 hover:bg-transparent"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive hover:bg-transparent"
                   >
                     {deleting === chat.id ? (
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>

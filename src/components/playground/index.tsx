@@ -1,6 +1,7 @@
 "use client"
 
 import { ApiKeyDialog } from '@/components/ApiKeyDialog';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import ChatNode from '@/components/nodes/ChatNode';
 import WebpageNode from '@/components/nodes/WebpageNode';
 import { getHistoricalNodeIds, handleConnectionEnd } from '@/lib/playground';
@@ -124,8 +125,9 @@ function PlaygroundContent() {
                 fitView
             >
                 <Background variant={BackgroundVariant.Dots} />
-                <Controls />
-                <Panel position="top-right" className="m-2">
+                {/* <Controls /> */}
+                <Panel position="top-right" className="m-2 flex items-center gap-2">
+                    <ThemeToggle />
                     <ApiKeyDialog />
                 </Panel>
             </ReactFlow>
