@@ -202,3 +202,33 @@ button {
 .dark .react-flow__controls-button:hover {
     background-color: rgba(55, 65, 81, 0.9);
 }
+
+
+/* width */
+
+.node-scrollbar::-webkit-scrollbar {
+    width: 8px;
+}
+
+
+/* Track */
+
+ ::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+
+/* Handle */
+
+ ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 99px;
+}
+
+
+/* Handle on hover */
+
+ ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 99px;
+}

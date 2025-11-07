@@ -1,9 +1,9 @@
 import { v4 as uuid } from 'uuid';
-import { NodeChat } from '../../../typings';
-import { usePlaygroundStore } from "../Playground";
+import { NodeChat } from '@/types/chat';
+import { usePlaygroundStore } from "@/store/Playground";
 
 
-export default function addNewChatNode(nodeId?: string, source?: string) {
+export default function addNewWebpageNode(nodeId?: string, source?: string) {
 
     const store = usePlaygroundStore.getState()
 
@@ -30,9 +30,9 @@ export default function addNewChatNode(nodeId?: string, source?: string) {
     const newNode = {
         id: id,
         position: { x, y },
-        data: { label: 'Chat Node' },
-        type: 'chatNode',
-        dragHandle: '.drag-handle__ChatNode'
+        data: { label: 'Webpage Node' },
+        type: 'webpageNode',
+        dragHandle: '.drag-handle__WebpageNode'
     }
 
     if (nodeId && source?.trim()) {

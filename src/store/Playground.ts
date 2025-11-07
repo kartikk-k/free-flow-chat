@@ -1,6 +1,6 @@
 import { Edge, Node } from '@xyflow/react';
 import { create } from 'zustand';
-import { NodeChat } from '../../typings';
+import { NodeChat } from '@/types/chat';
 
 
 interface PlaygroundStore {
