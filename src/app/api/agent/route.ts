@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
         }),
 
         onFinish: async ({ text }) => {
-            // Search results will be appended via the stream transformation below
+            // Search results are appended via stream transformation
         },
 
         // stopWhen: stepCountIs(15),
@@ -105,15 +105,30 @@ export async function POST(req: NextRequest) {
 
     });
 
-    // If no search results, return the normal stream
+    // If no search results, return the normal UI stream
     if (!searchResultsMarkdown) {
-        return result.toTextStreamResponse();
+        return result.toUIMessageStreamResponse();
     }
 
-    // Create a transformed stream that appends search results
-    const textStream = result.toTextStreamResponse();
-    const reader = textStream.body?.getReader();
+    // Create a custom async iterable that appends search results
+    async function* appendSearchResults() {
+        // Stream all the text from the AI
+        for await (const chunk of result.textStream) {
+            yield chunk;
+        }
+        // After streaming is done, append search results
+        yield searchResultsMarkdown;
+    }
+
+    // Convert to UI message stream with appended search results
+    const customTextStream = appendSearchResults();
+
+    // We need to create a proper response stream
+    // Use the result's internal stream but modify the text
+    const uiStream = result.toUIMessageStreamResponse();
+    const reader = uiStream.body?.getReader();
     const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
 
     const transformedStream = new ReadableStream({
         async start(controller) {
@@ -123,17 +138,20 @@ export async function POST(req: NextRequest) {
             }
 
             try {
-                // Stream the AI response
+                let lastChunkWasText = false;
+
                 while (true) {
                     const { done, value } = await reader.read();
 
                     if (done) {
-                        // Append search results before closing
-                        controller.enqueue(encoder.encode(searchResultsMarkdown));
+                        // Append search results as a text delta before closing
+                        const searchData = `0:${JSON.stringify(searchResultsMarkdown)}\n`;
+                        controller.enqueue(encoder.encode(searchData));
                         controller.close();
                         break;
                     }
 
+                    // Pass through all data
                     controller.enqueue(value);
                 }
             } catch (error) {
@@ -143,8 +161,6 @@ export async function POST(req: NextRequest) {
     });
 
     return new Response(transformedStream, {
-        headers: {
-            'Content-Type': 'text/plain; charset=utf-8',
-        },
+        headers: uiStream.headers,
     });
 }
