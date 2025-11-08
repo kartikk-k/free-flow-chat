@@ -22,6 +22,9 @@ interface PlaygroundStore {
     apiKey: string | null;
     setApiKey: (apiKey: string | null) => void;
 
+    exaApiKey: string | null;
+    setExaApiKey: (exaApiKey: string | null) => void;
+
     fitViewNodeId: string | null;
     setFitViewNodeId: (nodeId: string | null) => void;
 
@@ -46,6 +49,9 @@ export const usePlaygroundStore = create<PlaygroundStore>((set) => ({
 
     apiKey: null,
     setApiKey: (apiKey) => set({ apiKey }),
+
+    exaApiKey: null,
+    setExaApiKey: (exaApiKey) => set({ exaApiKey }),
 
     fitViewNodeId: null,
     setFitViewNodeId: (fitViewNodeId) => set({ fitViewNodeId }),

@@ -1,6 +1,7 @@
 import { createOpenAI } from '@ai-sdk/openai';
 import { convertToModelMessages, stepCountIs, streamText, UIMessage } from 'ai';
 import { NextRequest } from 'next/server';
+import Exa from 'exa-js';
 
 
 export const maxDuration = 300;
@@ -9,12 +10,13 @@ export async function POST(req: NextRequest) {
 
     const { messages }: { messages: UIMessage[] } = await req.json();
 
-    // Get API key from query parameter
+    // Get API keys from query parameters
     const apiKey = req.nextUrl.searchParams.get('apiKey');
+    const exaApiKey = req.nextUrl.searchParams.get('exaApiKey');
 
     // Use API key from query param if provided, otherwise fall back to environment variable
     const effectiveApiKey = apiKey;
-    // const effectiveApiKey = apiKey || process.env.OPENAI_API_KEY;
+    const effectiveExaApiKey = exaApiKey || process.env.EXA_API_KEY;
 
     if (!effectiveApiKey) {
         return new Response(
@@ -23,24 +25,126 @@ export async function POST(req: NextRequest) {
         );
     }
 
+    // Get the last user message for web search
+    const lastUserMessage = messages.filter(m => m.role === 'user').slice(-1)[0];
+    let userQuery = '';
+    if (lastUserMessage?.parts && Array.isArray(lastUserMessage.parts)) {
+        const firstPart = lastUserMessage.parts[0];
+        if (firstPart && typeof firstPart === 'object' && 'text' in firstPart) {
+            userQuery = firstPart.text || '';
+        }
+    }
+
+    let searchResults = null;
+    let searchContext = '';
+
+    // Perform web search with Exa if API key is available
+    if (effectiveExaApiKey && userQuery) {
+        try {
+            const exa = new Exa(effectiveExaApiKey);
+
+            // Perform search with content retrieval
+            const searchResponse = await exa.searchAndContents(userQuery, {
+                type: 'auto',
+                numResults: 5,
+                text: { maxCharacters: 500 },
+                highlights: true
+            });
+
+            searchResults = searchResponse.results;
+
+            // Build context from search results
+            if (searchResults && searchResults.length > 0) {
+                searchContext = '\n\nWeb Search Results:\n' + searchResults.map((result: any, index: number) =>
+                    `${index + 1}. ${result.title}\n   URL: ${result.url}\n   ${result.text || result.highlights?.join(' ') || ''}`
+                ).join('\n\n');
+            }
+        } catch (error) {
+            console.error('Exa search error:', error);
+            // Continue without search results if there's an error
+        }
+    }
+
+    // Add search context to messages if available
+    const messagesWithContext = searchContext
+        ? [
+            ...messages.slice(0, -1),
+            {
+                ...lastUserMessage,
+                content: userQuery + searchContext
+            } as UIMessage
+          ]
+        : messages;
+
     // const anthropic = createAnthropic({ apiKey: process.env.ANTROPIC_API_KEY! })
     const openai = createOpenAI({ apiKey: effectiveApiKey })
+
+    // Format search results as markdown to append
+    let searchResultsMarkdown = '';
+    if (searchResults && searchResults.length > 0) {
+        searchResultsMarkdown = '\n\n---\n\n**Web Search Results:**\n\n' +
+            searchResults.map((result: any, index: number) =>
+                `${index + 1}. **[${result.title}](${result.url})**\n   ${result.text || result.highlights?.join(' ') || ''}`
+            ).join('\n\n');
+    }
 
     const result = streamText({
         // model: anthropic('claude-sonnet-4-20250514'
         model: openai('gpt-4'),
-        messages: convertToModelMessages(messages),        
+        messages: convertToModelMessages(messagesWithContext),
 
         onError: (e => {
         }),
 
-        onFinish: (e => {
-        }),
+        onFinish: async ({ text }) => {
+            // Search results will be appended via the stream transformation below
+        },
 
         // stopWhen: stepCountIs(15),
         // tools: {}
 
     });
 
-    return result.toUIMessageStreamResponse();
+    // If no search results, return the normal stream
+    if (!searchResultsMarkdown) {
+        return result.toTextStreamResponse();
+    }
+
+    // Create a transformed stream that appends search results
+    const textStream = result.toTextStreamResponse();
+    const reader = textStream.body?.getReader();
+    const encoder = new TextEncoder();
+
+    const transformedStream = new ReadableStream({
+        async start(controller) {
+            if (!reader) {
+                controller.close();
+                return;
+            }
+
+            try {
+                // Stream the AI response
+                while (true) {
+                    const { done, value } = await reader.read();
+
+                    if (done) {
+                        // Append search results before closing
+                        controller.enqueue(encoder.encode(searchResultsMarkdown));
+                        controller.close();
+                        break;
+                    }
+
+                    controller.enqueue(value);
+                }
+            } catch (error) {
+                controller.error(error);
+            }
+        }
+    });
+
+    return new Response(transformedStream, {
+        headers: {
+            'Content-Type': 'text/plain; charset=utf-8',
+        },
+    });
 }

@@ -4,6 +4,7 @@
 
 const STORAGE_KEYS = {
   OPENAI_API_KEY: 'pod-ai:openai-api-key',
+  EXA_API_KEY: 'pod-ai:exa-api-key',
 } as const;
 
 /**
@@ -81,4 +82,28 @@ export function saveApiKey(apiKey: string): boolean {
  */
 export function removeApiKey(): boolean {
   return removeStorageItem(STORAGE_KEYS.OPENAI_API_KEY);
+}
+
+/**
+ * Get the Exa API key from localStorage
+ */
+export function getExaApiKey(): string | null {
+  return getStorageItem(STORAGE_KEYS.EXA_API_KEY);
+}
+
+/**
+ * Save the Exa API key to localStorage
+ */
+export function saveExaApiKey(apiKey: string): boolean {
+  if (!apiKey || apiKey.trim() === '') {
+    return removeExaApiKey();
+  }
+  return setStorageItem(STORAGE_KEYS.EXA_API_KEY, apiKey.trim());
+}
+
+/**
+ * Remove the Exa API key from localStorage
+ */
+export function removeExaApiKey(): boolean {
+  return removeStorageItem(STORAGE_KEYS.EXA_API_KEY);
 }

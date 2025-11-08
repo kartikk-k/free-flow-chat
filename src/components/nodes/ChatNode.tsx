@@ -17,11 +17,13 @@ function ChatNode(props: NodeProps) {
     const [nodeChat, setNodeChat] = useState<NodeChat | null>(null);
     const [showMore, setShowMore] = useState(false);
 
-    const { selectedNodeId, selectedNodeHistoricalNodeIds, apiKey } = usePlaygroundStore();
+    const { selectedNodeId, selectedNodeHistoricalNodeIds, apiKey, exaApiKey } = usePlaygroundStore();
 
     const { messages, sendMessage, status, setMessages, error } = useChat({
         transport: new DefaultChatTransport({
-            api: apiKey ? `/api/agent?apiKey=${encodeURIComponent(apiKey)}` : `/api/agent`,
+            api: apiKey
+                ? `/api/agent?apiKey=${encodeURIComponent(apiKey)}${exaApiKey ? `&exaApiKey=${encodeURIComponent(exaApiKey)}` : ''}`
+                : `/api/agent`,
         }),
         onFinish: () => {
         },
